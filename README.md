@@ -1,7 +1,9 @@
 # Deploy a Project REDCap environment on AWS using automation and architectural best practices
+---
 This repository contains AWS CloudFormation templates to automatically deploy a Project REDCap environment that adheres to AWS architectural best practices.  In order to use this automation you must supply your own copy of te Project REDCap source files.  These are available for qualified entities at https://www.project-redcap.org/.  Once you have downloaded your source files then you can follow the below instructions for deployment.
 
 ## Project REDCAp on AWS architecture and features
+---
 The features of using this architecture are as follows:
 * A complete and ready-to-use Project REDCap environment is automatically deployed in about 20 minutes.
 * Project REDCap is deployed in an isolated, three-tiered Virtual Private Cloud
@@ -23,4 +25,18 @@ Amazon Relational Database Service (RDS) with Amazon Aurora MySQL is used to pro
 Amazon Simple Storage Service (S3) is used as a file repository for files uploaded through Project REDCap.  S3 is designed to deliver 99.999999999% durability, and stores data for millions of applications used by market leaders in every industry. S3 provides comprehensive security and compliance capabilities that meet even the most stringent regulatory requirements.  The S3 bucket used to store these files is encrypted using AES-256.
 
 Amazon Simple Email Service (SES) is used enable Project REDCap to send emails to users.  SES is a powerful, affordable, and highly-scalable email sending and receiving platform for businesses and developers that integrates seamlessly with applications and with other AWS products.  SES provides a reliable SMTP gateway without the need to maintain a separate SMTP server.
+
+## Project REDCAp on AWS deployment instructions
+---
+### Pre-requisite tasks
+0.1. Follow the instructions on the [Project REDCap website](https://www.project-redcap.org/) to obtain a copy of the Project REDCap source files.
+
+0.2. [Create a private S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-bucket.html) and [upload your Project REDCap source file](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/upload-objects.html) into it.  Ensure that you do not make either the bucket or the source file publicly readable.
+
+0.3. [Obtain Your Amazon SES SMTP Credentials](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-credentials.html) using the Amazon SES console.  Download your credentials and store them in a safe place.
+
+0.4. AWS has strict safeguards in place regaridng email to prevent inappropriate use.  In order to send outbound email you must [verify the specific email address from which you will be sending mail](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses-procedure.html) or [verify the domain from which you will be sending mail](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-domain-procedure.html).  In addition, if you intend to send email to an email address or domain other than those you have validated, you must [submit a request to be moved out of the Amazon SES sandbox](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html).  If these steps are not taken then sending e-mail from your Project REDCap application will not work properly.
+
+####If you intend to use Route53 for DNS or ACM to provide an SSL certificate####
+0.3. Automatically provisioning and applying an SSL certificate with this CloudFormation tempalte using ACM requires the use of Route 53 for your DNS service.  Using an SSL certificate from another provider is covered later in the guide.  If you have not already done so, [create a new Route 53 Hosted Zone (https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html), [transfer registration of an existing domain to Route 53](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/domain-transfer-to-route-53.html), or [transfer just your DNS service to Route 53](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/MigratingDNS.html).
 
