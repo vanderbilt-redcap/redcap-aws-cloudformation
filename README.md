@@ -53,7 +53,7 @@ If you do not intend to use Route 53 and ACM to automatically generate and provi
 ![alt-text](https://github.com/JamesSWiggins/project-redcap-aws-automation/blob/master/images/redcap_cfn_select_template.png "CFN Select Template")
 
 
-2. On the next screen, provide a **Stack Name** (this can be anything you like) and a few other parameters for your Project REDCap environment.  A description is provided for each parameter to explain it's function.  When you've provided appropriate values for the **Parameters**, choose **Next**.
+2. On the next screen, provide a **Stack Name** (this can be anything you like, but no uppercase letters please) and a few other parameters for your Project REDCap environment.  A description is provided for each parameter to explain it's function.  When you've provided appropriate values for the **Parameters**, choose **Next**.
 
 3. On the next screen, you can provide some other optional information like tags at your discretion, or just choose **Next**.
 
