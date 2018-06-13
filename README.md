@@ -25,7 +25,7 @@ Starting from the user, public Internet DNS services are (optionally) provided b
 **Amazon Simple Email Service (SES)** is used enable Project REDCap to send emails to users.  SES is a powerful, affordable, and highly-scalable email sending and receiving platform for businesses and developers that integrates seamlessly with applications and with other AWS products.  SES provides a reliable SMTP gateway without the need to maintain a separate SMTP server.
 
 A more detailed, network oriented diagram of this environment is shown following.
-![alt-text](https://github.com/JamesSWiggins/project-redcap-aws-automation/images/raw/master/images/AWS%20Project%20REDCap%20Network%20Diagram.png "AWS Project REDCap Network Diagram")
+![alt-text](https://github.com/JamesSWiggins/project-redcap-aws-automation/blob/master/images/AWS%20Project%20REDCap%20Network%20Diagram.png "AWS Project REDCap Network Diagram")
 
 ## Project REDCAp on AWS deployment instructions
 ### Pre-requisite tasks
