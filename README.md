@@ -53,4 +53,7 @@ A more detailed, network oriented diagram of this environment is shown following
 
 5. You can watch as CloudFormation builds out your Project REDCap environment. A CloudFormation deployment is called a *stack*. The parent stack creates several child stacks depending on the parameters you provided.  When all the stacks have reached the green CREATE_COMPLETE status, as shown in the screenshot following, then the Project REDCAp architecture has been deployed.  Select the **Outputs** tab to find your Project REDCap environment URL.
 
+6. After clicking on the provided URL, you will be taken to the Project REDCap login screen.  You can login by using the username 'redcap_admin' and the password you provided in the **DB Master Password Parameter**.  You will immediately be asked to change the password.
 
+### Congratulations
+At this point, you have a fully functioning and robust Project REDCap environment to begin using.
