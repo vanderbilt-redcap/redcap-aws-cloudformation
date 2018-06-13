@@ -26,6 +26,13 @@ Parameters:
     Default: true
     Description: Specifies whether an SSL certificate should be generated for your domain name using AWS Certificate Manager (ACM).  If one is not generated, HTTP will be used and an SSL certificate can be applied after deployment.
     Type: String
+  UseRoute53Boolean:
+    AllowedValues:
+      - true
+      - false
+    Default: true
+    Description: Specifies whether a record set should be created in Route 53 for your REDCap domain name.  If not, you will recieve a default Elastic Beanstalk DNS name (e.g. redcap.us-east-1.elasticbeanstalk.com).
+    Type: String
   S3FileRepositoryBucket:
     Type: String
     Description: 'S3 Bucket Name to be used for REDCap File Repository'
@@ -34,10 +41,14 @@ Parameters:
     Description: 'S3 Bucket used to store the application package for Elastic Beanstalk.'
 
 Conditions:    
-  DeployACM: 
-    !Equals [ true, !Ref UseACMBoolean ]
-  NoDeployACM:
-    !Equals [ false, !Ref UseACMBoolean ]
+  DeployRoute53: 
+    !Equals [ true, !Ref UseRoute53Boolean ]
+  DeployACM: !And 
+    - !Equals [ true, !Ref UseACMBoolean ]
+    - !Condition DeployRoute53
+  NoDeployACM: !Or
+    - !Equals [ false, !Ref UseACMBoolean ]
+    - !Equals [ false, !Ref UseRoute53Boolean ]
 
 Resources:
   vpc27bc775f:

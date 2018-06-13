@@ -241,10 +241,12 @@ Conditions:
     !Equals [ false, !Ref MultiAZDatabase ]
   DeployRoute53: 
     !Equals [ true, !Ref UseRoute53Boolean ]
-  DeployACM: 
-    !Equals [ true, !Ref UseACMBoolean ]
-  NotDeployACM:
-    !Equals [ false, !Ref UseACMBoolean ]
+  DeployACM: !And 
+    - !Equals [ true, !Ref UseACMBoolean ]
+    - !Condition DeployRoute53
+  NotDeployACM: !Or
+    - !Equals [ false, !Ref UseACMBoolean ]
+    - !Equals [ false, !Ref UseRoute53Boolean ]
 
 
 Resources:

@@ -59,6 +59,8 @@ Metadata:
       AccessCidr:
         default: Project REDCap Access From
 
+      EBEndpoint:
+        default: Elastic Beanstalk Endpoint Name
       UseRoute53Boolean:
         default: Use Route 53?
       UseACMBoolean:
@@ -84,11 +86,16 @@ Metadata:
 
 
       WebAsgMax:
-        default: Web ASG Max
+        default: Maximum REDCap Instances
       WebAsgMin:
-        default: Web ASG Min
+        default: Minimum REDCap Instances
       WebInstanceType:
         default: Web Tier Instance Type
+
+      RedcapS3Bucket:
+        default: S3 Bucket
+      RedcapS3Key:
+        default: S3 Key
 
 
 
@@ -125,12 +132,11 @@ Parameters:
     Description: '[ Requires Route53 ] Specifies whether an SSL certificate should be generated for your domain name using AWS Certificate Manager (ACM).  If one is not generated, HTTP will be used and an SSL certificate can be applied after deployment.'
     Type: String
   HostedZoneId:
-    Description: '[ Optional, only if using Route53 ] The Route 53 hosted zone ID to create the domain in (e.g. example.edu).'
-    #Type: AWS::Route53::HostedZone::Id
+    Description: '[ Optional, only if using Route53 ] The Route 53 hosted zone ID to create the domain in (e.g. Z2FDTNDATAQYW2).'
     Type: String
   HostedZoneName:
     AllowedPattern: ^$|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
-    Description: '[ Optional, only if using Route53 ] The Route 53 hosted zone to create the domain in (e.g. example.edu).'
+    Description: '[ Optional, only if using Route53 ] The Route 53 hosted zone name to create the domain in (e.g. example.edu).'
     Type: String
   DomainName:
     AllowedPattern: ^$|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
@@ -153,7 +159,7 @@ Parameters:
       - true
       - false
     Default: false
-    Description: Specifies whether a to deploy the AWS Aurora MySQL Database in Multi-AZ configuration.
+    Description: Specifies whether to deploy the AWS Aurora MySQL Database in a Multi-AZ configuration.
     Type: String
   DatabaseInstanceType:
     AllowedValues:
@@ -239,22 +245,20 @@ Parameters:
     AllowedPattern: ^((?!0$)[1-2]?[0-9]|30)$
     ConstraintDescription: Must be a number between 1 and 30.
     Default: 1
-    Description: Specifies the maximum number of EC2 instances in the Web Autoscaling Group.
+    Description: Specifies the maximum number of EC2 instances in the Web Autoscaling Group.  Must be greater than or equal to the Minimum REDCap Instances.
     Type: String
   WebAsgMin:
     AllowedPattern: ^([0-0]?[0-9]|10)$
     ConstraintDescription: Must be a number between 0 and 10.
     Default: 1
-    Description: Specifies the minimum number of EC2 instances in the Web Autoscaling Group.
+    Description: Specifies the minimum number of EC2 instances in the Web Autoscaling Group.  A value of >1 will a highly available environment by placing instances in multiple availability zones.
     Type: String
   RedcapS3Bucket:
-    Description: "S3 bucket that contains your REDCap binary file"
+    Description: "The name of the S3 bucket that contains your REDCap source zip file (e.g. myredcapsourcefiles)"
     Type: String
-    Default: redcap-test
   RedcapS3Key:
-    Description: "S3 Key that points to your Redcap Binary file"
+    Description: "The S3 key name that points to your REDCap source file (e.g. redcap8.4.3.zip"
     Type: String
-    Default: redcap8.4.3.zip
 
   
 Conditions:
@@ -274,6 +278,7 @@ Resources:
         AccessCidr: !Ref 'AccessCidr'
         RedcapS3Bucket: !Ref 'RedcapS3Bucket'
         UseACMBoolean: !Ref 'UseACMBoolean'
+        UseRoute53Boolean: !Ref 'UseRoute53Boolean'
         S3FileRepositoryBucket: !Sub '${AWS::AccountId}-${AWS::StackName}-redcaprepository'
         EBBucket: !Sub '${AWS::AccountId}-${AWS::StackName}-redcapebapp'
   certificate:
@@ -373,5 +378,5 @@ Resources:
       TemplateURL: https://s3.amazonaws.com/project-redcap-aws-automation/03-rc-route53.yaml
 
 Outputs:
-  REDCApURL:
+  REDCapURL:
     Value: !If [DeployRoute53, !If [DeployACM, !Join ['', ['https://', !Ref DomainName, '.', !Ref HostedZoneName, '/']], !Join ['', ['http://', !Ref DomainName, '.', !Ref HostedZoneName, '/']]], !Join ['', ['http://', !Ref EBEndpoint, '.', !Ref 'AWS::Region', '.elasticbeanstalk.com']]]
