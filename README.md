@@ -9,7 +9,7 @@ The features of using this architecture are as follows:
 * Data is encrypted by default at rest and in flight (in accordance with HIPAA)
 * Managed services are used that provide automated patching and maintanence of OS, middleware, and database software.
 * Database backups are performed automatically to enable operational and disaster recovery.
-* [The design results in a reasonable monthly cost](https://calculator.s3.amazonaws.com/index.html#r=IAD&key=calc-2CA042AD-1E05-4BDD-9571-5473C42A24F7) 
+* [The design results in a reasonable monthly cost](https://calculator.s3.amazonaws.com/index.html#r=IAD&key=calc-42CFC1C0-3356-4A35-8697-0A9567A8EA3B) 
 
 A high-level diagram showing how the different functions of Project REDCap map to AWS Services is shown below.  
 ![alt-text](https://github.com/JamesSWiggins/project-redcap-aws-automation/raw/master/images/AWS%20Project%20REDCap%20Block%20Diagram.png "AWS Project REDCap High-Level Diagram")
