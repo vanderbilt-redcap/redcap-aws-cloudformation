@@ -53,13 +53,13 @@ Parameters:
   WebAsgMax:
     AllowedPattern: ^((?!0$)[1-2]?[0-9]|30)$
     ConstraintDescription: Must be a number between 1 and 30.
-    Default: 2
+    Default: 1
     Description: Specifies the maximum number of EC2 instances in the Web Autoscaling Group.
     Type: String
   WebAsgMin:
     AllowedPattern: ^([0-0]?[0-9]|10)$
     ConstraintDescription: Must be a number between 0 and 10.
-    Default: 2
+    Default: 1
     Description: Specifies the minimum number of EC2 instances in the Web Autoscaling Group.
     Type: String
   WebInstanceType:
@@ -153,18 +153,15 @@ Parameters:
   RedcapS3Bucket:
     Description: "S3 bucket that contains your REDCap binary file"
     Type: String
-    Default: redcap-test
   RedcapS3Key:
     Description: "S3 Key that points to your Redcap Binary file"
     Type: String
-    Default: redcap8.4.3.zip
   DatabaseMasterPassword:
-    Description: Password for Redshift and RDS Aurora Postgres databases.  It is a security best practice to change this password from the default.
-    Default: yourPassword1
+    Description: Must be letters (upper or lower), numbers, spaces, and these special characters `~#$%^&*()_+,-
     Type: String
     NoEcho: true
-    AllowedPattern: ^(?=.{8,32}$)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*
-    ConstraintDescription: "Must be between 8-32 characters and contain one or must upper case letters, lower case letters, and numbers."
+    AllowedPattern: ^([a-zA-Z0-9`~#$%^&*()_+,\\-])*$
+    ConstraintDescription: The Amazon RDS master password. Letters, numbers, spaces, and these special characters `~#$%^&*()_+,-
   EC2KeyName:
     Description: The EC2 Key Pair to use for the Atlas/WebAPI EC2 Instances.
     Type: AWS::EC2::KeyPair::KeyName
@@ -595,6 +592,20 @@ Resources:
       AWS::CloudFormation::Init:
         config:
           files:
+              /etc/awslogs/awslogs.conf:
+                content: !Sub 
+                  - |
+                    [general]
+                    state_file = /var/lib/awslogs/agent-state        
+                    
+                    [REDCap-build-log]
+                    file = /var/log/cloud-init-output.log
+                    log_group_name = redcap-temporary-ec2-instnace-log
+                    log_stream_name = ${EB}-build-log
+                  - { EB: !Ref EBEndpoint }
+                mode: 000664
+                owner: root
+                group: root
               /tmp/99redcap_config.config:
                 content: !Sub 
                   - |
@@ -779,11 +790,13 @@ Resources:
           #!/bin/bash
           export REDCAP_FILE_NAME=$(echo ${RedcapS3Key} | rev | cut -d'/' -f 1 | rev)
           export AWS_DEFAULT_REGION=${AWS::Region}
-          yum update -y aws-cli
+          yum update -y aws-cli 
+          yum install -y awslogs
 
           #Use cfn-init to grab and apply the files specified in the above UserData
           /opt/aws/bin/cfn-init --verbose --stack ${AWS::StackName} --resource TempEC2Instance --region ${AWS::Region}
           cd /tmp
+          sudo service awslogs start
           #Get the REDCap source file specified by the user
           aws s3 cp s3://${RedcapS3Bucket}/${RedcapS3Key} .
           unzip $REDCAP_FILE_NAME -d "./redcap"
@@ -802,6 +815,7 @@ Resources:
           export SOLUTION_STACK=`aws elasticbeanstalk list-available-solution-stacks | grep "PHP 7" | head -1 | cut -d \" -f2`
           /opt/aws/bin/cfn-signal --stack ${AWS::StackName} --region ${AWS::Region} "${EC2WaitHandle}" -d "$SOLUTION_STACK"
           #Shutdown and terminate this temporary instance 
+          sleep 20
           shutdown -h now
   EC2WaitCondition:
     Type: "AWS::CloudFormation::WaitCondition"

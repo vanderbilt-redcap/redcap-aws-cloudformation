@@ -7,7 +7,7 @@
 # either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
 AWSTemplateFormatVersion: '2010-09-09'
-Description: This CloudFormation Template creates the VPC, subnets, routing, NAT Gateways, security groups and IAM Roles to support OHDSI.
+Description: This CloudFormation Template creates the VPC, subnets, routing, NAT Gateways, security groups and IAM Roles to support REDCap.
 
 Parameters:
   AccessCidr:
@@ -40,6 +40,46 @@ Parameters:
     Type: String
     Description: 'S3 Bucket used to store the application package for Elastic Beanstalk.'
 
+  VPCcidr:
+    Description: (optional to change) CIDR IP Range for your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.0.0/16
+  p1cidr:
+    Description: (optional to change) CIDR IP Range for the public subnet in AZ 'a' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.0.0/24
+  p2cidr:
+    Description: (optional to change) CIDR IP Range for the public subnet in AZ 'b' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.1.0/24
+  a1cidr:
+    Description: (optional to change) CIDR IP Range for the application subnet in AZ 'a' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.2.0/24
+  a2cidr:
+    Description: (optional to change) CIDR IP Range for the application subnet in AZ 'b' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.3.0/24
+  d1cidr:
+    Description: (optional to change) CIDR IP Range for the database subnet in AZ 'b' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.4.0/24
+  d2cidr:
+    Description: (optional to change) CIDR IP Range for the database subnet in AZ 'b' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.5.0/24
+
+
+
+
+
 Conditions:    
   DeployRoute53: 
     !Equals [ true, !Ref UseRoute53Boolean ]
@@ -54,7 +94,7 @@ Resources:
   vpc27bc775f:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.1.0.0/16
+      CidrBlock: !Ref VPCcidr
       InstanceTenancy: default
       EnableDnsSupport: 'true'
       EnableDnsHostnames: 'false'
@@ -97,7 +137,7 @@ Resources:
   subnet3d504d67:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.1.5.0/24
+      CidrBlock: !Ref d2cidr
       AvailabilityZone: !Join [ "", [ !Ref 'AWS::Region', "b" ] ]
       VpcId: !Ref 'vpc27bc775f'
       Tags:
@@ -106,7 +146,7 @@ Resources:
   subnet864d50dc:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.1.3.0/24
+      CidrBlock: !Ref a2cidr
       AvailabilityZone: !Join [ "", [ !Ref 'AWS::Region', "b" ] ]
       VpcId: !Ref 'vpc27bc775f'
       Tags:
@@ -115,7 +155,7 @@ Resources:
   subnet7aee3531:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.1.4.0/24
+      CidrBlock: !Ref d1cidr
       AvailabilityZone: !Join [ "", [ !Ref 'AWS::Region', "a" ] ]
       VpcId: !Ref 'vpc27bc775f'
       Tags:
@@ -124,7 +164,7 @@ Resources:
   subnetbae43ff1:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.1.2.0/24
+      CidrBlock: !Ref a1cidr
       AvailabilityZone: !Join [ "", [ !Ref 'AWS::Region', "a" ] ]
       VpcId: !Ref 'vpc27bc775f'
       Tags:
@@ -133,7 +173,7 @@ Resources:
   subnetd3e13a98:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.1.0.0/24
+      CidrBlock: !Ref p1cidr
       AvailabilityZone: !Join [ "", [ !Ref 'AWS::Region', "a" ] ]
       MapPublicIpOnLaunch: 'True'
       VpcId: !Ref 'vpc27bc775f'
@@ -143,7 +183,7 @@ Resources:
   subnet2c5c4176:
     Type: AWS::EC2::Subnet
     Properties:
-      CidrBlock: 10.1.1.0/24
+      CidrBlock: !Ref p2cidr
       AvailabilityZone: !Join [ "", [ !Ref 'AWS::Region', "b" ] ]
       MapPublicIpOnLaunch: 'True'
       VpcId: !Ref 'vpc27bc775f'
@@ -390,7 +430,7 @@ Resources:
 
 
 
-#IAM Roles for the temporary EC2 server to compile Atlas and WebAPI, apply the database DDLs, load the sample data, and run Achilles
+#IAM Roles for the temporary EC2 server to inject the ebextenstions files in to the REDCap source package.
   EC2Role:
     Type: AWS::IAM::Role
     Properties:
@@ -426,6 +466,13 @@ Resources:
               - "elasticbeanstalk:ListAvailableSolutionStacks"
             Resource:
               - '*'
+          - Effect: Allow
+            Action: 
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:PutLogEvents'
+              - 'logs:DescribeLogStreams'
+            Resource: 'arn:aws:logs:*:*:*'
       Roles:
         - !Ref 'EC2Role'
   EC2InstanceProfile:

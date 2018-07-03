@@ -51,7 +51,16 @@ Metadata:
       Parameters:
         - RedcapS3Bucket
         - RedcapS3Key
-    
+    - Label:
+        default: VPC Networking (changing this is optional)
+      Parameters:
+        - VPCcidr
+        - p1cidr
+        - p2cidr
+        - a1cidr
+        - a2cidr
+        - d1cidr
+        - d2cidr
     
     ParameterLabels:
       EC2KeyName:
@@ -97,6 +106,20 @@ Metadata:
       RedcapS3Key:
         default: S3 Key
 
+      VPCcidr:
+        default: VPC CIDR Range
+      p1cidr:
+        default: Public Subnet A CIDR Range
+      p2cidr:
+        default: Public Subnet B CIDR Range
+      a1cidr:
+        default: Application Subnet A CIDR Range
+      a2cidr:
+        default: Application Subnet B CIDR Range
+      d1cidr:
+        default: Database Subnet A CIDR Range
+      d2cidr:
+        default: Database Subnet B CIDR Range
 
 
 
@@ -113,8 +136,11 @@ Parameters:
 
 
   EBEndpoint:
-    AllowedPattern: ^$|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
-    Description: '[ REQUIRED ] The unique name to use for your Elastic Beanstalk URL (will be rendered http://(EBEndpoint).(region).elasticbeanstalk.com)'
+    AllowedPattern: ^([a-zA-Z0-9-])*$
+    Description: '[ REQUIRED ] The unique name to use for your Elastic Beanstalk URL (will be rendered http://(EBEndpoint).(region).elasticbeanstalk.com).  You can use the "nslookup" to see if an endpoint is in use.'
+    ConstraintDescription: 'This name must be between 4 and 40 characters and contain only letters, numbers, and/or a hyphen'
+    MaxLength: 40
+    MinLength: 4    
     Type: String
     Default: myredcap
   UseRoute53Boolean:
@@ -176,9 +202,9 @@ Parameters:
     Description: The Amazon RDS database instance class.
     Type: String
   DatabaseMasterPassword:
-    AllowedPattern: ^([a-zA-Z0-9`~!#$%^&*()_+,\\-])*$
-    ConstraintDescription: Must be letters (upper or lower), numbers, spaces, and these special characters `~!#$%^&*()_+,-
-    Description: The Amazon RDS master password. Letters, numbers, spaces, and these special characters `~!#$%^&*()_+,-
+    AllowedPattern: ^([a-zA-Z0-9~#%^*_+,-])*$
+    ConstraintDescription: Must have a length of 8-41 and be letters (upper or lower), numbers, and/or these special characters ~#%^*_+,-
+    Description: The Amazon RDS master password. Letters, numbers, and/or these special characters ~#%^*_+,-
     MaxLength: 41
     MinLength: 8
     NoEcho: true
@@ -257,10 +283,47 @@ Parameters:
     Description: "The name of the S3 bucket that contains your REDCap source zip file (e.g. myredcapsourcefiles)"
     Type: String
   RedcapS3Key:
-    Description: "The S3 key name that points to your REDCap source file (e.g. redcap8.4.3.zip"
+    Description: "The S3 key name that points to your REDCap source file (e.g. redcap8.4.3.zip)"
     Type: String
 
-  
+  VPCcidr:
+    Description: (optional to change) CIDR IP Range for your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.0.0/16
+  p1cidr:
+    Description: (optional to change) CIDR IP Range for the public subnet in AZ 'a' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.0.0/24
+  p2cidr:
+    Description: (optional to change) CIDR IP Range for the public subnet in AZ 'b' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.1.0/24
+  a1cidr:
+    Description: (optional to change) CIDR IP Range for the application subnet in AZ 'a' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.2.0/24
+  a2cidr:
+    Description: (optional to change) CIDR IP Range for the application subnet in AZ 'b' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.3.0/24
+  d1cidr:
+    Description: (optional to change) CIDR IP Range for the database subnet in AZ 'b' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.4.0/24
+  d2cidr:
+    Description: (optional to change) CIDR IP Range for the database subnet in AZ 'b' of your REDCap VPC.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Type: String
+    Default: 10.1.5.0/24
+
+
+
 Conditions:
   DeployRoute53: 
     !Equals [ true, !Ref UseRoute53Boolean ]
@@ -281,6 +344,13 @@ Resources:
         UseRoute53Boolean: !Ref 'UseRoute53Boolean'
         S3FileRepositoryBucket: !Sub '${AWS::AccountId}-${AWS::StackName}-redcaprepository'
         EBBucket: !Sub '${AWS::AccountId}-${AWS::StackName}-redcapebapp'
+        VPCcidr: !Ref VPCcidr
+        p1cidr: !Ref p1cidr
+        p2cidr: !Ref p2cidr
+        a1cidr: !Ref a1cidr
+        a2cidr: !Ref a2cidr
+        d1cidr: !Ref d1cidr
+        d2cidr: !Ref d2cidr
   certificate:
     Condition: DeployACM
     Type: AWS::CloudFormation::Stack
