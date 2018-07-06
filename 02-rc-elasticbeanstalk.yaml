@@ -606,6 +606,15 @@ Resources:
                 mode: 000664
                 owner: root
                 group: root
+              /etc/awslogs/awscli.conf:
+                content: !Sub |
+                  [plugins]
+                  cwlogs = cwlogs
+                  [default]
+                  region = ${AWS::Region}
+                mode: 000664
+                owner: root
+                group: root
               /tmp/99redcap_config.config:
                 content: !Sub 
                   - |

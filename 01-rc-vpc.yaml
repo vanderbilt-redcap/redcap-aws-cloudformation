@@ -33,12 +33,6 @@ Parameters:
     Default: true
     Description: Specifies whether a record set should be created in Route 53 for your REDCap domain name.  If not, you will recieve a default Elastic Beanstalk DNS name (e.g. redcap.us-east-1.elasticbeanstalk.com).
     Type: String
-  S3FileRepositoryBucket:
-    Type: String
-    Description: 'S3 Bucket Name to be used for REDCap File Repository'
-  EBBucket:
-    Type: String
-    Description: 'S3 Bucket used to store the application package for Elastic Beanstalk.'
 
   VPCcidr:
     Description: (optional to change) CIDR IP Range for your REDCap VPC.
@@ -456,11 +450,11 @@ Resources:
               - "cloudformation:DescribeStackResource"
             Resource: 
               - !Join [ "", [ 'arn:aws:s3:::', !Ref RedcapS3Bucket ] ]
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref RedcapS3Bucket, '/*' ] ]
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref S3FileRepositoryBucket ] ]
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref S3FileRepositoryBucket, '/*' ] ]
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref EBBucket] ]
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref EBBucket, '/*'] ]
+              - !Join [ "", [ 'arn:aws:s3:::', !Ref RedcapS3Bucket, '/*' ] ]              
+              - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp' ] ]
+              - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp', '/*' ] ]
+              - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository' ] ]
+              - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository', '/*' ] ]
           - Effect: Allow
             Action:
               - "elasticbeanstalk:ListAvailableSolutionStacks"
@@ -482,7 +476,7 @@ Resources:
       Roles:
         - !Ref 'EC2Role'
 
-
+  # '${AWS::AccountId}-${subnetpublica}-redcaprepository'
   #IAM User and Access/Secret Key to be used by REDCap to access S3 as a File Repository
   REDCapUser:
     Type: AWS::IAM::User
@@ -495,8 +489,8 @@ Resources:
               Action: 
                 - "s3:*"
               Resource: 
-                - !Join [ "", [ 'arn:aws:s3:::', !Ref S3FileRepositoryBucket, '/*' ] ]
-                - !Join [ "", [ 'arn:aws:s3:::', !Ref S3FileRepositoryBucket ] ]
+              - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository' ] ]
+              - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository', '/*' ] ]
   REDCapAccessKey:
     Type: AWS::IAM::AccessKey
     Properties:
@@ -539,4 +533,3 @@ Outputs:
     Value: !Ref REDCapAccessKey
   S3SecretKey:
     Value: !GetAtt REDCapAccessKey.SecretAccessKey
-  

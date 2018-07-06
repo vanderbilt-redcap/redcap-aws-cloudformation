@@ -11,6 +11,7 @@ Metadata:
         default: Route 53 Parameters
       Parameters:
         - DomainName
+        - HostedZoneId
         - HostedZoneName
         - DnsEndpoint
     ParameterLabels:
@@ -18,8 +19,8 @@ Metadata:
         default: DNS Endpoint
       DomainName:
         default: Site Domain
-      HostedZoneName:
-        default: Hosted Zone Name
+      HostedZoneId:
+        default: Hosted Zone ID
 
 Parameters:
 
@@ -27,13 +28,16 @@ Parameters:
     AllowedPattern: ^(?!http)(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
     Description: The DNS endpoint - CloudFront DNS if using CloudFront else Public ELB DNS name.
     Type: String
+  HostedZoneId:
+    Description: '[ Optional, only if using Route53 ] The Route 53 hosted zone ID to create the domain in (e.g. Z2FDTNDATAQYW2).'
+    Type: String
   HostedZoneName:
-    AllowedPattern: ^(?!http)(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
-    Description: The main Route 53 hosted zone (e.g. example.edu).
+    AllowedPattern: ^$|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
+    Description: '[ Optional, only if using Route53 ] The Route 53 hosted zone name to create the domain in (e.g. example.edu).'
     Type: String
   DomainName:
-    AllowedPattern: ^(?!http)(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
-    Description: The main domain name of the Moodle site (e.g. moodle.example.edu).
+    AllowedPattern: ^([a-zA-Z0-9-])*$
+    Description: '[ Optional, only if using Route53 ] The sub-domain name of the REDCap website.  This sub-domain will be prepended your specified Hosted Zone (e.g. redcap in redcap.example.edu).'
     Type: String
 
 Resources:
@@ -41,7 +45,7 @@ Resources:
   RecordSet:
     Type: AWS::Route53::RecordSet
     Properties:
-      HostedZoneName: !Join ['', [!Ref HostedZoneName, '.']]
+      HostedZoneId: !Ref HostedZoneId
       Name: !Join ['', [!Ref DomainName, '.', !Ref HostedZoneName, '.']]
       Type: CNAME
       TTL: '900'
