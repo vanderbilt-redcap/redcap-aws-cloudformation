@@ -8,7 +8,7 @@
 
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: Stack to deploy a highly available, elastic, scalable Project REDCap environment. This master stack launches multiple nested stacks for different tiers.
+Description: Stack to deploy a highly available, elastic, scalable REDCap environment. This master stack launches multiple nested stacks for different tiers.
 
 
 
@@ -30,7 +30,7 @@ Metadata:
         - HostedZoneName
         - DomainName
     - Label:
-          default: E-Mail
+          default: 'Email config - using AWS Simple Email Service (SES)'
       Parameters:
         - SESUsername
         - SESPassword
@@ -47,7 +47,7 @@ Metadata:
         - WebAsgMax
         - WebAsgMin
     - Label:
-        default: Project REDCap Source Code
+        default: 'REDCap Source Code - Create a bucket in S3 and then upload the REDCap install zip file (e.g. redcap8.6.0.zip) to that bucket'
       Parameters:
         - RedcapS3Bucket
         - RedcapS3Key
@@ -66,7 +66,7 @@ Metadata:
       EC2KeyName:
         default: EC2 Key Pair
       AccessCidr:
-        default: Project REDCap Access From
+        default: Limit access to IP address range?
 
       EBEndpoint:
         default: Elastic Beanstalk Endpoint Name
@@ -91,7 +91,7 @@ Metadata:
       DatabaseInstanceType:
         default: DB Instance Class
       DatabaseMasterPassword:
-        default: DB Master Password
+        default: 'DB Master Password & initial password for REDCap user "redcap_admin"'
 
 
       WebAsgMax:
@@ -126,11 +126,11 @@ Metadata:
 Parameters:
   EC2KeyName:
     ConstraintDescription: Must be letters (upper or lower), numbers, and special characters.
-    Description: Name of an EC2 KeyPair. Your bastion & Web instances will launch with this KeyPair.
+    Description: '[ REQUIRED ] Name of an EC2 KeyPair. Your bastion & Web instances will launch with this KeyPair. To create a KeyPair, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair'
     Type: AWS::EC2::KeyPair::KeyName
   AccessCidr:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    Description: The CIDR IP range that is permitted to access your Project REDCap site. Note - a value of 0.0.0.0/0 will allow access from ANY IP address.
+    Description: 'The CIDR IP range that is permitted to access your REDCap servers. Note: A value of 0.0.0.0/0 will allow access from ANY IP address.'
     Type: String
     Default: 0.0.0.0/0
 
@@ -147,14 +147,14 @@ Parameters:
     AllowedValues:
       - true
       - false
-    Default: true
+    Default: false
     Description: Specifies whether a record set should be created in Route 53 for your REDCap domain name.  If not, you will recieve a default Elastic Beanstalk DNS name (e.g. redcap.us-east-1.elasticbeanstalk.com).
     Type: String
   UseACMBoolean:
     AllowedValues:
       - true
       - false
-    Default: true
+    Default: false
     Description: '[ Requires Route53 ] Specifies whether an SSL certificate should be generated for your domain name using AWS Certificate Manager (ACM).  If one is not generated, HTTP will be used and an SSL certificate can be applied after deployment.'
     Type: String
   HostedZoneId:
@@ -166,17 +166,17 @@ Parameters:
     Type: String
   DomainName:
     AllowedPattern: ^$|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
-    Description: '[ Optional, only if using Route53 ] The sub-domain name of the Project REDCap site.  This sub-domain will be prepended your specified Hosted Zone (e.g. redcap in redcap.example.edu).'
+    Description: '[ Optional, only if using Route53 ] The sub-domain name of the REDCap website.  This sub-domain will be prepended your specified Hosted Zone (e.g. redcap in redcap.example.edu).'
     Type: String
 
 
 
   SESUsername:
     Type: String
-    Description: Username to use for authentication to SES.
+    Description: '[ Required ] Username to use for authentication to SES.'
   SESPassword:
     Type: String
-    Description: Username to use for authentication to SES.
+    Description: '[ Required ] Password to use for authentication to SES.'
     NoEcho: true
 
 
@@ -199,12 +199,12 @@ Parameters:
       - db.r4.16xlarge
     ConstraintDescription: Must be a valid RDS instance class.
     Default: db.t2.small
-    Description: The Amazon RDS database instance class.
+    Description: The Amazon RDS database instance class (determines processing power and memory capacity of the database).
     Type: String
   DatabaseMasterPassword:
     AllowedPattern: ^([a-zA-Z0-9~#%^*_+,-])*$
     ConstraintDescription: Must have a length of 8-41 and be letters (upper or lower), numbers, and/or these special characters ~#%^*_+,-
-    Description: The Amazon RDS master password. Letters, numbers, and/or these special characters ~#%^*_+,-
+    Description: '[ Required ] The Amazon RDS master password (this will also be used as the initial temp password for the REDCap user "redcap_admin"). Letters, numbers, and/or these special characters ~#%^*_+,-'
     MaxLength: 41
     MinLength: 8
     NoEcho: true
@@ -283,7 +283,7 @@ Parameters:
     Description: "The name of the S3 bucket that contains your REDCap source zip file (e.g. myredcapsourcefiles)"
     Type: String
   RedcapS3Key:
-    Description: "The S3 key name that points to your REDCap source file (e.g. redcap8.4.3.zip)"
+    Description: "The S3 key name - the file name of the REDCap source file (e.g. redcap8.6.0.zip) located inside the bucket provided above"
     Type: String
 
   VPCcidr:
