@@ -1,5 +1,5 @@
 # Deploy a Project REDCap environment on AWS using automation and architectural best practices
-This repository contains AWS CloudFormation templates to automatically deploy a Project REDCap environment that adheres to AWS architectural best practices.  In order to use this automation you must supply your own copy of the Project REDCap source files.  These are available for qualified entities at https://www.project-redcap.org/.  Once you have downloaded your source files then you can follow the below instructions for deployment.
+This repository contains AWS CloudFormation templates to automatically deploy a Project REDCap environment that adheres to AWS architectural best practices.  In order to use this automation, you must supply your own copy of the Project REDCap source files.  These are available for qualified entities at https://www.project-redcap.org/.  Once you have downloaded your source files then you can follow the below instructions for deployment.
 
 In their own words: "REDCap is a secure web application for building and managing online surveys and databases. While REDCap can be used to collect virtually any type of data (including 21 CFR Part 11, FISMA, and HIPAA-compliant environments), it is specifically geared to support online or offline data capture for research studies and operations. The REDCap Consortium, a vast support network of collaborators, is composed of thousands of active institutional partners in over one hundred countries who utilize and support REDCap in various ways."
 
@@ -9,7 +9,7 @@ The features of using this architecture are as follows:
 * Project REDCap is deployed in an isolated, three-tiered Virtual Private Cloud
 * The environment enables automatic scaling up and down based on load
 * Data is encrypted by default at rest and in flight (in accordance with HIPAA)
-* Managed services are used that provide automated patching and maintanence of OS, middleware, and database software
+* Managed services are used that provide automated patching and maintenance of OS, middleware, and database software
 * Database backups are performed automatically to enable operational and disaster recovery
 * [The design results in a reasonable monthly cost](https://calculator.s3.amazonaws.com/index.html#r=IAD&key=calc-42CFC1C0-3356-4A35-8697-0A9567A8EA3B) 
 
@@ -26,7 +26,7 @@ Starting from the user, public Internet DNS services are (optionally) provided b
 
 **Amazon Simple Email Service (SES)** is used enable Project REDCap to send emails to users.  SES is a powerful, affordable, and highly-scalable email sending and receiving platform for businesses and developers that integrates seamlessly with applications and with other AWS products.  SES provides a reliable SMTP gateway without the need to maintain a separate SMTP server.
 
-A more detailed, network oriented diagram of this environment is shown following.
+A more detailed, network-oriented diagram of this environment is shown following.
 ![alt-text](https://github.com/JamesSWiggins/project-redcap-aws-automation/blob/master/images/AWS%20Project%20REDCap%20Network%20Diagram.png "AWS Project REDCap Network Diagram")
 
 ## Project REDCap on AWS deployment instructions
@@ -55,7 +55,7 @@ If you do not intend to use Route 53 and ACM to automatically generate and provi
 ![alt-text](https://github.com/JamesSWiggins/project-redcap-aws-automation/blob/master/images/redcap_cfn_select_template.png "CFN Select Template")
 
 
-2. On the next screen, provide a **Stack Name** and a few other parameters for your Project REDCap environment.  A description is provided for each parameter to explain it's function.  Please keep in mind that the **Elastic Beanstalk Endpoint Name** must be unique within your AWS Region.  You can check to see if an endpoint name is in use by checking for an existing DNS entry using the 'nslookup' command (nslookup (EBEndpoint).(region).elasticbeanstalk.com).  If the command returns an IP address, that means that the name is in use and you should pick a different name.  When you've provided appropriate values for the **Parameters**, choose **Next**.
+2. On the next screen, provide a **Stack Name** and a few other parameters for your Project REDCap environment.  A description is provided for each parameter to explain its function.  Please keep in mind that the **Elastic Beanstalk Endpoint Name** must be unique within your AWS Region.  You can check to see if an endpoint name is in use by checking for an existing DNS entry using the 'nslookup' command (nslookup (EBEndpoint).(region).elasticbeanstalk.com).  If the command returns an IP address, that means that the name is in use and you should pick a different name.  When you've provided appropriate values for the **Parameters**, choose **Next**.
 
 3. On the next screen, you can provide some other optional information like tags at your discretion, or just choose **Next**.
 
