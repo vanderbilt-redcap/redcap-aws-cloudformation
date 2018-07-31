@@ -70,6 +70,16 @@ If you do not intend to use Route 53 and ACM to automatically generate and provi
 At this point, you have a fully functioning and robust Project REDCap environment to begin using.  Following are some helpful points to consider regarding how to support this environment on-going.
 
 #### Web Security
-Consider implementing a ![alt-text](https://aws.amazon.com/waf/ "AWS Web Application Firewall (WAF)") in front of your REDCap application to help protect against common web exploits that could affect availability, compromise security or consume excessive resources.  You can use AWS WAF to create custom rules that block common attack patterns, such as SQL injection or cross-site scripting.  Learn more in the whitepaper ![alt-text](https://d0.awsstatic.com/whitepapers/Security/aws-waf-owasp.pdf ""Use AWS WAF to Mitigate OWASP’s Top 10 Web Application Vulnerabilities"").  You can deploy AWS WAF on either Amazon CloudFront as part of your CDN solution or on the Application Load Balancer (ALB) that was deployed as a part of this solution.
+Consider implementing a [AWS Web Application Firewall (WAF)](https://aws.amazon.com/waf/) in front of your REDCap application to help protect against common web exploits that could affect availability, compromise security or consume excessive resources.  You can use AWS WAF to create custom rules that block common attack patterns, such as SQL injection or cross-site scripting.  Learn more in the whitepaper ["Use AWS WAF to Mitigate OWASP’s Top 10 Web Application Vulnerabilities"](https://d0.awsstatic.com/whitepapers/Security/aws-waf-owasp.pdf) .  You can deploy AWS WAF on either Amazon CloudFront as part of your CDN solution or on the Application Load Balancer (ALB) that was deployed as a part of this solution.
 
 #### Content Delivery Network
+Consider implementing [AWS CloudFront](https://aws.amazon.com/cloudfront/) as a content delivery network to reduce latency, improve speed, and save money.  This is particularly applicable if your REDCap implementation will have global users.
+
+#### Pull logs, view monitoring data, get alerts, and apply patches
+Using the Elastic Beanstalk sevice you can [pull log files from one or more of your instances](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.logging.html).  You can also [view monitoring data](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/environments-health.html) including CPU utilization, network utilization, HTTP response codes, and more.  From this monitoring data, you can [configure alarms](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.alarms.html) to notify you of events within your REDCap application environment.  Elastic Beanstalk also makes [managed platform updates available](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/environment-platform-update-managed.html), including Linux, PHP, and Apache upgrades that you can apply during maintanence windows your define.
+
+#### Fault tolerance and backups
+Elastic Beanstalk keeps a highly available copy of your current and previous REDCap application versions as well as your environment configuration.  This can be used to re-deploy or re-create your REDCap application environment at any time and serves as a 'backup'.
+
+#### Scalability
+https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.managing.as.html
