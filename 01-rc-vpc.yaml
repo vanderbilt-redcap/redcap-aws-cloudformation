@@ -399,6 +399,8 @@ Resources:
                       - ':s3:::elasticbeanstalk-*-'
                       - !Ref 'AWS::AccountId'
                       - '-*/*'
+                  - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp' ] ]
+                  - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp', '/*' ] ]
               - Sid: MetricsAccess
                 Action:
                   - 'cloudwatch:PutMetricData'
@@ -416,6 +418,29 @@ Resources:
                   - 'ec2:AttachVolume'
                   - 'ec2:ModifyInstanceAttribute'
                   - "ec2:Describe*"
+                Effect: Allow
+                Resource: '*'
+              - Sid: CreateNewEBVersion
+                Action:
+                  - 'elasticbeanstalk:RetrieveEnvironmentInfo'
+                  - "elasticbeanstalk:DescribeEnvironments"
+                  - "elasticbeanstalk:DescribeEvents"
+                  - "elasticbeanstalk:DescribeConfigurationOptions"
+                  - "elasticbeanstalk:DescribeInstancesHealth"
+                  - "elasticbeanstalk:DescribeApplicationVersions"
+                  - "elasticbeanstalk:DescribeEnvironmentHealth"
+                  - "elasticbeanstalk:DescribeApplications"
+                  - "elasticbeanstalk:ListPlatformVersions"
+                  - "elasticbeanstalk:DescribeEnvironmentResources"
+                  - "elasticbeanstalk:DescribeEnvironmentManagedActions"
+                  - "elasticbeanstalk:RequestEnvironmentInfo"
+                  - "elasticbeanstalk:DescribeEnvironmentManagedActionHistory"
+                  - "elasticbeanstalk:CreateApplicationVersion"
+                  - "elasticbeanstalk:ValidateConfigurationSettings"
+                  - "elasticbeanstalk:DescribeConfigurationSettings"
+                  - "elasticbeanstalk:CheckDNSAvailability"
+                  - "elasticbeanstalk:ListAvailableSolutionStacks"
+                  - "elasticbeanstalk:DescribePlatformVersion"
                 Effect: Allow
                 Resource: '*'
       Path: /

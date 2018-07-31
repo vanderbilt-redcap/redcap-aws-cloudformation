@@ -401,6 +401,9 @@ Resources:
         - Namespace: aws:elasticbeanstalk:environment:process:https
           OptionName: Protocol
           Value: HTTPS          
+        - Namespace: aws:elasticbeanstalk:environment:process:https
+          OptionName: StickinessEnabled
+          Value: true  
 
 
 
@@ -507,12 +510,18 @@ Resources:
         - Namespace: aws:elbv2:loadbalancer
           OptionName: ManagedSecurityGroup
           Value: !Ref SGPublic
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: StickinessEnabled
+          Value: true 
         - Namespace: aws:elasticbeanstalk:environment:process:https
           OptionName: Port
           Value: 443
         - Namespace: aws:elasticbeanstalk:environment:process:https
           OptionName: Protocol
-          Value: HTTPS    
+          Value: HTTPS
+        - Namespace: aws:elasticbeanstalk:environment:process:https
+          OptionName: StickinessEnabled
+          Value: true 
 
 
 
@@ -636,6 +645,14 @@ Resources:
                         content: |
                           CREATE USER IF NOT EXISTS 'redcap_user'@'%' IDENTIFIED BY '${DBPassword}';
                           GRANT SELECT, INSERT, UPDATE, DELETE ON `redcap`.* TO 'redcap_user'@'%';
+                          -- Create second MySQL user as redcap_user2 with a random password, which could possibly a randomly generated value.
+                          CREATE USER IF NOT EXISTS 'redcap_user2'@'%' IDENTIFIED BY 'REDCAP_USER2PASSWORD';
+                          GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER ON `redcap`.* TO 'redcap_user2'@'%';
+                          -- Add second MySQL user with user and password in *plain text* (will be auto-encrypted by REDCap afterward)
+                          REPLACE INTO redcap_config (field_name, value) VALUES
+                          ('redcap_updates_user', 'redcap_user2'),
+                          ('redcap_updates_password', 'REDCAP_USER2PASSWORD'),
+                          ('redcap_updates_password_encrypted', '0');
                       "/create-initial-user.sql":
                         mode: "000755"
                         owner: root
@@ -648,20 +665,14 @@ Resources:
                           UPDATE redcap_config set value = '2' where field_name = 'edoc_storage_option';
                           UPDATE redcap_config SET value = '${S3Bucket}' WHERE field_name = 'amazon_s3_bucket';
                           UPDATE redcap_config SET value = '${S3AccessKey}' WHERE field_name = 'amazon_s3_key';
-                          UPDATE redcap_config SET value = '${S3SecretKey}' WHERE field_name = 'amazon_s3_secret';           
+                          UPDATE redcap_config SET value = '${S3SecretKey}' WHERE field_name = 'amazon_s3_secret';      
                       "/opt/elasticbeanstalk/hooks/appdeploy/post/99_redcap_config.sh":
                         mode: "000755"
                         owner: root
                         group: root
                         content: |
                           #!/usr/bin/env bash
-                          yum install -y mysql57 php70-zip php70-ldap sendmail-cf
                           export AWS_DEFAULT_REGION=${AWS::Region}
-                          
-                          #Create the REDCap CRON entry
-                          (crontab -l ; echo -e "# REDCap Cron Job (runs every minute)\n* * * * * /usr/bin/php /var/app/current/redcap/cron.php > /dev/null") | crontab
-                          #Create the 'redcap_user' database user.  If the user already exists the SQL statement won't overwrite it.
-                          mysql -h ${RDSEndpoint} -u master -D redcap --password=${DBPassword} < create-redcap-user.sql
                           #Insert the correct environment details into the database.php file
                           sed -i 's!'your_mysql_host_name'!'${RDSEndpoint}'!' /var/app/current/redcap/database.php
                           sed -i 's!'your_mysql_db_name'!'redcap'!' /var/app/current/redcap/database.php
@@ -672,7 +683,19 @@ Resources:
                               aws ssm put-parameter --name "redcap-salt" --type "SecureString" --value `head /dev/urandom | tr -dc a-z0-9 | head -c 8 ; echo ''`
                           fi
                           #Apply 'salt' string from AWS SSM to the database.php file.  This ensures the 'salt' string is the same on every PHP server.
-                          sed -i "s#\$salt = '';#\$salt = '`aws ssm get-parameter --name redcap-salt --with-decryption --query 'Parameter.Value' --output text`';#" /var/app/current/redcap/database.php 
+                          sed -i "s#\$salt = '';#\$salt = '`aws ssm get-parameter --name redcap-salt --with-decryption --query 'Parameter.Value' --output text`';#" /var/app/current/redcap/database.php
+                          
+                          #only do the below tasks if it's the first deployment to this server.
+                          if [ ! -f /eb-configured ]; then
+                          
+                          yum install -y mysql57 php70-zip php70-ldap sendmail-cf
+                          
+                          #Create the REDCap CRON entry
+                          (crontab -l ; echo -e "# REDCap Cron Job (runs every minute)\n* * * * * /usr/bin/php /var/app/current/redcap/cron.php > /dev/null") | crontab
+                          #Create the 'redcap_user' database user.  If the user already exists the SQL statement won't overwrite it.
+                          export RCUSER2PW=`head /dev/urandom | tr -dc a-z0-9 | head -c 8 ; echo ''`
+                          sed -i 's!'REDCAP_USER2PASSWORD'!'$RCUSER2PW'!' /create-redcap-user.sql
+                          mysql -h ${RDSEndpoint} -u master -D redcap --password=${DBPassword} < create-redcap-user.sql
 
                           # If this is the leader-node and if the REDCap schema hasn't already been applied, create the initial 'redcap_admin' user, grab the SQL off the install.php website and apply it.
                           if [ -e /leaderonly ]; then
@@ -704,6 +727,10 @@ Resources:
                           m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
                           chmod 644 /etc/mail/sendmail.cf
                           /etc/init.d/sendmail restart
+                          touch /eb-configured
+                          else 
+                          echo "Already ran EB configuration scripts.  This must be an application redeployment"
+                          fi
                   - { RDSEndpoint: !GetAtt RDSCluster.Endpoint.Address, DBPassword: !Ref DatabaseMasterPassword, Protocol: !If [ DeployACM, 'https://', 'http://' ], RCDomainName: !If [DeployRoute53, !Ref DomainName, !Ref EBEndpoint], HostedZone: !If [DeployRoute53, !Ref HostedZoneName, !Join ['.', [!Ref 'AWS::Region', 'elasticbeanstalk.com']]], SESu: !Ref SESUsername, SESpw: !Ref SESPassword, S3Bucket: !Ref S3FileRepositoryBucket }
                 mode: 000500
                 owner: root
@@ -775,11 +802,15 @@ Resources:
                       01SelfSignedSSL:
                         command: |
                           #Generate a self-signed cert to be used between the AWS ALB and the Apache PHP servers.
+                          if [ ! -f /etc/pki/tls/certs/server.key ]; then
                           openssl genrsa 2048 > server.key
                           openssl req -new -key server.key -out csr.pem -subj "/C=US/ST=WA/L=Seattle/O=anon/OU=anon/CN=none/emailAddress=none"
                           openssl x509 -req -days 365 -in csr.pem -signkey server.key -out server.crt
                           cp server.crt server.key /etc/pki/tls/certs/
                           rm -f server.crt server.key csr.pem
+                          else
+                          echo "Already have a self-signed private key.  This must be an application redeployment"
+                          fi
                 mode: 000500
                 owner: root
                 group: root
