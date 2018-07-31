@@ -66,5 +66,10 @@ If you do not intend to use Route 53 and ACM to automatically generate and provi
 
 6. After clicking on the provided URL, you will be taken to the Project REDCap login screen.  You can login by using the username 'redcap_admin' and the password you provided in the **DB Master Password Parameter**.  You will immediately be asked to change the password.
 
-### Congratulations
-At this point, you have a fully functioning and robust Project REDCap environment to begin using.
+### Ongoing Operations
+At this point, you have a fully functioning and robust Project REDCap environment to begin using.  Following are some helpful points to consider regarding how to support this environment on-going.
+
+#### Web Security
+Consider implementing a ![alt-text](https://aws.amazon.com/waf/ "AWS Web Application Firewall (WAF)") in front of your REDCap application to help protect against common web exploits that could affect availability, compromise security or consume excessive resources.  You can use AWS WAF to create custom rules that block common attack patterns, such as SQL injection or cross-site scripting.  Learn more in the whitepaper ![alt-text](https://d0.awsstatic.com/whitepapers/Security/aws-waf-owasp.pdf ""Use AWS WAF to Mitigate OWASP’s Top 10 Web Application Vulnerabilities"").  You can deploy AWS WAF on either Amazon CloudFront as part of your CDN solution or on the Application Load Balancer (ALB) that was deployed as a part of this solution.
+
+#### Content Delivery Network
