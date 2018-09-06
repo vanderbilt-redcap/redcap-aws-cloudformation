@@ -200,13 +200,13 @@ Parameters:
 Mappings:
   RegionMap:
     us-east-1:
-      AMI: ami-cfe4b2b0
+      AMI: ami-b70554c8
     us-east-2:
-      AMI: ami-40142d25
+      AMI: ami-8c122be9
     us-west-1:
-      AMI: ami-0e86606d
+      AMI: ami-e0ba5c83
     us-west-2:
-      AMI: ami-0ad99772
+      AMI: ami-a9d09ed1
     ca-central-1:
       AMI: ami-03e86a67
     eu-west-1:
@@ -220,17 +220,17 @@ Mappings:
     sa-east-1:
       AMI: ami-83d58fef
     ap-south-1:
-      AMI: ami-5a8da735
+      AMI: ami-d783a9b8
     ap-southeast-1:
-      AMI: ami-ed838091
+      AMI: ami-05868579
     ap-southeast-2:
       AMI: ami-33f92051
     ap-northeast-1:
       AMI: ami-9c9443e3
     ap-northeast-2:
-      AMI: ami-ebc47185
+      AMI: ami-afd86dc1
     ap-northeast-3:
-      AMI: ami-09b8b674
+      AMI: ami-32b8b64f
 
 
 Conditions:
@@ -703,7 +703,7 @@ Resources:
                           # If this is the leader-node and if the REDCap schema hasn't already been applied, create the initial 'redcap_admin' user, grab the SQL off the install.php website and apply it.
                           if [ -e /leaderonly ]; then
                             if ! mysql -h ${RDSEndpoint} -u master -D redcap --password=${DBPassword} -e "select * from redcap_actions"; then
-                                    curl -k -F redcap_csrf_token= -F superusers_only_create_project=0 -F superusers_only_move_to_prod=1 -F auto_report_stats=1 -F bioportal_api_token= -F redcap_base_url='${Protocol}${RCDomainName}.${HostedZone}/' -F enable_url_shortener=1 -F default_datetime_format='D/M/Y_12' -F default_number_format_decimal=, -F efault_number_format_thousands_sep=. -F homepage_contact='REDCap Administrator (123-456-7890)' -F homepage_contact_email=email@yoursite.edu -F project_contact_name='REDCap Administrator (123-456-7890)' -F project_contact_email=email@yoursite.edu -F institution='SoAndSo University' -F site_org_type='SoAndSo Institute for Clinical and Translational Research' -F hook_functions_file='/var/app/current/redcap/hook_functions.php' ${Protocol}localhost/install.php | sed -n '/onclick=\x27this.select();\x27>/,/<\/textarea>/p' | sed '1d' > mysql.sql
+                                    curl -k -F redcap_csrf_token= -F superusers_only_create_project=0 -F superusers_only_move_to_prod=1 -F auto_report_stats=1 -F bioportal_api_token= -F redcap_base_url='${Protocol}${RCDomainName}.${HostedZone}/' -F enable_url_shortener=1 -F default_datetime_format='D/M/Y_12' -F default_number_format_decimal=, -F default_number_format_thousands_sep=. -F homepage_contact='REDCap Administrator (123-456-7890)' -F homepage_contact_email=email@yoursite.edu -F project_contact_name='REDCap Administrator (123-456-7890)' -F project_contact_email=email@yoursite.edu -F institution='SoAndSo University' -F site_org_type='SoAndSo Institute for Clinical and Translational Research' -F hook_functions_file='/var/app/current/redcap/hook_functions.php' ${Protocol}localhost/install.php | sed -n '/onclick=\x27this.select();\x27>/,/<\/textarea>/p' | sed '1d' > mysql.sql
                                     temp=`tail -1 mysql.sql | cut -d';' -f1`; sed '$d' mysql.sql > mysql-rc.sql; echo $temp';' >> mysql-rc.sql
                                     mysql -h ${RDSEndpoint} -u master -D redcap --password=${DBPassword} < mysql-rc.sql
                                     mysql -h ${RDSEndpoint} -u master -D redcap --password=${DBPassword} < create-initial-user.sql
@@ -797,9 +797,9 @@ Resources:
                           done
                           mkfs -t ext3 $device
                           mkdir /tmp/mnt
-                          cp -a $mount /tmp/mnt
+                          cp -a $mount/* /tmp/mnt
                           mount $device $mount
-                          cp -a /tmp/mnt $mount
+                          cp -a /tmp/mnt/* $mount
                           fi
                         ignoreErrors: false
                       01SelfSignedSSL:
@@ -856,7 +856,7 @@ Resources:
           aws s3 cp redcap-eb.zip s3://${EBBucket}
           #Create an encrypted S3 Bucket to be the REDCap File Repository
           aws s3 mb --region us-east-1 s3://${S3FileRepositoryBucket}
-          aws s3api put-bucket-encryption --bucket ${S3FileRepositoryBucket} --server-side-encryption-configuration '{ "Rules": [ { "ApplyServerSideEncryptionByDefault": { "SSEAlgorithm": "AES256" } } ] }'
+          aws s3api put-bucket-encryption --bucket ${S3FileRepositoryBucket} --server-side-encryption-configuration '{} "Rules": [ { "ApplyServerSideEncryptionByDefault": { "SSEAlgorithm": "AES256" } } ] }'
           #Tell Elastic Beanstalk what the latest PHP 7 solution stack is 
           export SOLUTION_STACK=`aws elasticbeanstalk list-available-solution-stacks | grep "PHP 7" | head -1 | cut -d \" -f2`
           /opt/aws/bin/cfn-signal --stack ${AWS::StackName} --region ${AWS::Region} "${EC2WaitHandle}" -d "$SOLUTION_STACK"
