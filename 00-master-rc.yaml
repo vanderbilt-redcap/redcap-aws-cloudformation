@@ -435,7 +435,7 @@ Resources:
     Properties:
       Parameters:
         DnsEndpoint:
-          !GetAtt redcapelasticbeanstalk.Outputs.PublicAlbDnsName
+          !Join ['', [!Ref EBEndpoint, '.', !Ref 'AWS::Region', '.elasticbeanstalk.com']]
         HostedZoneId:
           !Ref HostedZoneId
         HostedZoneName:

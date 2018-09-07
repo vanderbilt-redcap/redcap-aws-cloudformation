@@ -404,6 +404,8 @@ Resources:
               - Sid: MetricsAccess
                 Action:
                   - 'cloudwatch:PutMetricData'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
                 Effect: Allow
                 Resource: '*'
               - Sid: SSMAccess

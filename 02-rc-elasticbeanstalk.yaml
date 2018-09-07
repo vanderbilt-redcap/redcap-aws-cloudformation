@@ -200,37 +200,37 @@ Parameters:
 Mappings:
   RegionMap:
     us-east-1:
-      AMI: ami-b70554c8
+      AMI: ami-0ff8a91507f77f867
     us-east-2:
-      AMI: ami-8c122be9
+      AMI: ami-0b59bfac6be064b78
     us-west-1:
-      AMI: ami-e0ba5c83
+      AMI: ami-0bdb828fd58c52235
     us-west-2:
-      AMI: ami-a9d09ed1
+      AMI: ami-a0cfeed8
     ca-central-1:
-      AMI: ami-03e86a67
+      AMI: ami-0b18956f
     eu-west-1:
-      AMI: ami-e4515e0e
+      AMI: ami-047bb4163c506cd98
     eu-west-2:
-      AMI: ami-b2b55cd5
+      AMI: ami-f976839e
     eu-west-3:
-      AMI: ami-d50bbaa8
+      AMI: ami-0ebc281c20e89ba4b
     eu-central-1:
-      AMI: ami-a058674b
+      AMI: ami-0233214e13e500f77
     sa-east-1:
-      AMI: ami-83d58fef
+      AMI: ami-07b14488da8ea02a0
     ap-south-1:
-      AMI: ami-d783a9b8
+      AMI: ami-0912f71e06545ad88
     ap-southeast-1:
-      AMI: ami-05868579
+      AMI: ami-08569b978cc4dfa10
     ap-southeast-2:
-      AMI: ami-33f92051
+      AMI: ami-09b42976632b27e9b
     ap-northeast-1:
-      AMI: ami-9c9443e3
+      AMI: ami-06cd52961ce9f0d85
     ap-northeast-2:
-      AMI: ami-afd86dc1
+      AMI: ami-0a10b2721688ce9d2
     ap-northeast-3:
-      AMI: ami-32b8b64f
+      AMI: ami-0d98120a9fb693f07
 
 
 Conditions:
@@ -662,7 +662,8 @@ Resources:
                           UPDATE redcap_config set value = '2' where field_name = 'edoc_storage_option';
                           UPDATE redcap_config SET value = '${S3Bucket}' WHERE field_name = 'amazon_s3_bucket';
                           UPDATE redcap_config SET value = '${S3AccessKey}' WHERE field_name = 'amazon_s3_key';
-                          UPDATE redcap_config SET value = '${S3SecretKey}' WHERE field_name = 'amazon_s3_secret';      
+                          UPDATE redcap_config SET value = '${S3SecretKey}' WHERE field_name = 'amazon_s3_secret'; 
+                          UPDATE redcap_config SET value = '${AWS::Region}' WHERE field_name = 'amazon_s3_endpoint';     
                           -- Add second MySQL user with user and password in *plain text* (will be auto-encrypted by REDCap afterward)
                           REPLACE INTO redcap_config (field_name, value) VALUES
                           ('redcap_updates_user', 'redcap_user2'),
@@ -844,6 +845,8 @@ Resources:
           #Get the REDCap source file specified by the user
           aws s3 cp s3://${RedcapS3Bucket}/${RedcapS3Key} .
           aws configure list
+          sleep 10
+          aws configure list
           unzip $REDCAP_FILE_NAME -d "./redcap"
           mkdir redcap/.ebextensions/
           #Copy all of the configuration files and scripts we want Elastic Beanstalk to run into the source file
@@ -852,11 +855,13 @@ Resources:
           zip -r redcap-eb.zip .
           #Put the ammended source file back in S3 so that Elastic Beanstalk can pick it up and deploy it
           aws configure list
+          sleep 10
+          aws configure list
           aws s3 mb s3://${EBBucket}
           aws s3 cp redcap-eb.zip s3://${EBBucket}
           #Create an encrypted S3 Bucket to be the REDCap File Repository
-          aws s3 mb --region us-east-1 s3://${S3FileRepositoryBucket}
-          aws s3api put-bucket-encryption --bucket ${S3FileRepositoryBucket} --server-side-encryption-configuration '{} "Rules": [ { "ApplyServerSideEncryptionByDefault": { "SSEAlgorithm": "AES256" } } ] }'
+          aws s3 mb s3://${S3FileRepositoryBucket}
+          aws s3api put-bucket-encryption --bucket ${S3FileRepositoryBucket} --server-side-encryption-configuration '{ "Rules": [ { "ApplyServerSideEncryptionByDefault": { "SSEAlgorithm": "AES256" } } ] }'
           #Tell Elastic Beanstalk what the latest PHP 7 solution stack is 
           export SOLUTION_STACK=`aws elasticbeanstalk list-available-solution-stacks | grep "PHP 7" | head -1 | cut -d \" -f2`
           /opt/aws/bin/cfn-signal --stack ${AWS::StackName} --region ${AWS::Region} "${EC2WaitHandle}" -d "$SOLUTION_STACK"
