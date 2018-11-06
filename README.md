@@ -35,7 +35,7 @@ Before deploying an application on AWS that transmits, processes, or stores prot
 ### Pre-requisite tasks
 0.1. Follow the instructions on the [Project REDCap website](https://www.project-redcap.org/) to obtain a copy of the Project REDCap source files.
 
-0.2. [Create a private S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-bucket.html) and [upload your Project REDCap source file](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/upload-objects.html) into it.  Ensure that you do not make either the bucket or the source file publicly readable.
+0.2. [Create a private S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-bucket.html) and [upload your Project REDCap source file](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/upload-objects.html) into it.  Ensure that you do not make either the bucket or the source file publicly readable.  This CloudFormation template also creates two additional S3 buckets, so make sure you aren't near the [limit of your maximum number of buckets](https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html) (default is 100).
 
 0.3. [Obtain your Amazon SES SMTP Credentials](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-credentials.html) using the Amazon SES console in the **N. Virginia (us-east-1) Region**.  Download your credentials and store them in a safe place.
 
