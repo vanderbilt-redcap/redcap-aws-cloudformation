@@ -335,7 +335,7 @@ Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/project-redcap-aws-automation/01-rc-vpc.yaml
+      TemplateURL: https://s3.amazonaws.com/redcap-aws-cloudformation/01-rc-vpc.yaml
       Parameters:
         AccessCidr: !Ref 'AccessCidr'
         RedcapS3Bucket: !Ref 'RedcapS3Bucket'
@@ -355,7 +355,7 @@ Resources:
       Parameters:
         R53HostedZoneId: !Ref 'HostedZoneId'
         R53DomainName: !Join ['', [!Ref DomainName, '.', !Ref HostedZoneName]]
-      TemplateURL: https://s3.amazonaws.com/project-redcap-aws-automation/01-rc-certificate.yaml
+      TemplateURL: https://s3.amazonaws.com/redcap-aws-cloudformation/01-rc-certificate.yaml
   redcapelasticbeanstalk:
     DependsOn: [ VPCStack ]
     Type: AWS::CloudFormation::Stack
@@ -427,7 +427,7 @@ Resources:
           !GetAtt 'VPCStack.Outputs.EBInstanceProfile'
         TempEC2InstanceProfile:
           !GetAtt 'VPCStack.Outputs.TempEC2InstanceProfile'
-      TemplateURL: https://s3.amazonaws.com/project-redcap-aws-automation/02-rc-elasticbeanstalk.yaml
+      TemplateURL: https://s3.amazonaws.com/redcap-aws-cloudformation/02-rc-elasticbeanstalk.yaml
   route53:
     Condition: DeployRoute53
     DependsOn: redcapelasticbeanstalk
@@ -442,7 +442,7 @@ Resources:
           !Ref HostedZoneName
         DomainName:
           !Ref DomainName
-      TemplateURL: https://s3.amazonaws.com/project-redcap-aws-automation/03-rc-route53.yaml
+      TemplateURL: https://s3.amazonaws.com/redcap-aws-cloudformation/03-rc-route53.yaml
 
 Outputs:
   REDCapURL:
