@@ -364,6 +364,8 @@ Resources:
                 - ec2.amazonaws.com
             Action:
               - 'sts:AssumeRole'
+      ManagedPolicyArns: 
+        - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
       Policies:
         - PolicyName: root
           PolicyDocument:
@@ -371,9 +373,7 @@ Resources:
             Statement:
               - Sid: BucketAccess
                 Action:
-                  - 's3:Get*'
-                  - 's3:List*'
-                  - 's3:PutObject'
+                  - 's3:*'
                 Effect: Allow
                 Resource:
                   - !Join 
@@ -443,6 +443,16 @@ Resources:
                   - "elasticbeanstalk:CheckDNSAvailability"
                   - "elasticbeanstalk:ListAvailableSolutionStacks"
                   - "elasticbeanstalk:DescribePlatformVersion"
+                  - "elasticbeanstalk:UpdateEnvironment"
+                  - "cloudformation:GetTemplate"
+                  - 'cloudformation:DescribeStackResources'
+                  - 'cloudformation:DescribeStackResource'
+                  - "autoscaling:DescribeAutoScalingGroups"
+                  - "autoscaling:SuspendProcesses"
+                  - "autoscaling:DescribeScalingActivities"
+                  - "autoscaling:ResumeProcesses"
+                  - "elasticloadbalancing:DescribeTargetGroups"
+                  - "elasticloadbalancing:RegisterTargets"
                 Effect: Allow
                 Resource: '*'
       Path: /
