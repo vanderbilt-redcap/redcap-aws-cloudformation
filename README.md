@@ -1,4 +1,12 @@
 # Deploy a REDCap environment on AWS using automation and architectural best practices
+
+## Quick Start
+
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create?stackName=myredcapstack100&templateURL=https://s3.amazonaws.com/redcap-aws-cloudformation/00-master-rc.yaml" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+
+Click the launch button above to begin the process of deploying a REDCap environment on AWS CloudFormation.
+
+## Summary
 This repository contains AWS CloudFormation templates to automatically deploy a REDCap environment that adheres to AWS architectural best practices.  In order to use this automation, you must supply your own copy of the REDCap source files.  These are available for qualified entities at https://www.project-redcap.org/.  Once you have downloaded your source files then you can follow the below instructions for deployment.
 
 In their own words: "REDCap is a secure web application for building and managing online surveys and databases. While REDCap can be used to collect virtually any type of data (including 21 CFR Part 11, FISMA, and HIPAA-compliant environments), it is specifically geared to support online or offline data capture for research studies and operations. The REDCap Consortium, a vast support network of collaborators, is composed of thousands of active institutional partners in over one hundred countries who utilize and support REDCap in various ways."
