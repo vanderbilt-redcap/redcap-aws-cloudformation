@@ -13,6 +13,8 @@ In their own words: "REDCap is a secure web application for building and managin
 
 **NOTE: REDCap 8.9.3 or higher is required for using this AWS CloudFormation template.** Earlier versions of REDCap may not install correctly and will not be able to utilize the Easy Upgrade feature.
 
+You must be a REDCap consortium partner in order to utilize this AWS CloudFormation template. But once your institution is a partner, no additional licenses with Vanderbilt are required for running REDCap on AWS.
+
 ## REDCap on AWS architecture and features
 The features of using this architecture are as follows:
 * A complete and ready-to-use REDCap environment is automatically deployed in about 20 minutes.
