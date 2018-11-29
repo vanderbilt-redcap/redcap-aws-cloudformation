@@ -11,7 +11,7 @@ This repository contains AWS CloudFormation templates to automatically deploy a 
 
 In their own words: "REDCap is a secure web application for building and managing online surveys and databases. While REDCap can be used to collect virtually any type of data (including 21 CFR Part 11, FISMA, and HIPAA-compliant environments), it is specifically geared to support online or offline data capture for research studies and operations. The REDCap Consortium, a vast support network of collaborators, is composed of thousands of active institutional partners in over one hundred countries who utilize and support REDCap in various ways."
 
-**NOTE: REDCap 8.9.3 or higher is required for using this AWS CloudFormation template.** Earlier versions of REDCap may not install correctly or be able to utilize the Easy Upgrade feature at all.
+**NOTE: REDCap 8.9.3 or higher is required for using this AWS CloudFormation template.** Earlier versions of REDCap may not install correctly and will not be able to utilize the Easy Upgrade feature.
 
 ## REDCap on AWS architecture and features
 The features of using this architecture are as follows:
