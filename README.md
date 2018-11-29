@@ -7,7 +7,7 @@
 Click the launch button above to begin the process of deploying a REDCap environment on AWS CloudFormation.
 
 ## Summary
-This repository contains AWS CloudFormation templates to automatically deploy a REDCap environment that adheres to AWS architectural best practices.  In order to use this automation, you must supply your own copy of the REDCap source files.  These are available for qualified entities at https://www.project-redcap.org/.  Once you have downloaded your source files then you can follow the below instructions for deployment.
+This repository contains AWS CloudFormation templates to automatically deploy a REDCap environment that adheres to AWS architectural best practices.  In order to use this automation, you must supply your own copy of the REDCap source files.  These are available for qualified entities at https://projectredcap.org.  Once you have downloaded your source files then you can follow the below instructions for deployment.
 
 In their own words: "REDCap is a secure web application for building and managing online surveys and databases. While REDCap can be used to collect virtually any type of data (including 21 CFR Part 11, FISMA, and HIPAA-compliant environments), it is specifically geared to support online or offline data capture for research studies and operations. The REDCap Consortium, a vast support network of collaborators, is composed of thousands of active institutional partners in over one hundred countries who utilize and support REDCap in various ways."
 
@@ -22,7 +22,7 @@ The features of using this architecture are as follows:
 * [The design results in a reasonable monthly cost](https://calculator.s3.amazonaws.com/index.html#r=IAD&key=calc-42CFC1C0-3356-4A35-8697-0A9567A8EA3B) 
 
 A high-level diagram showing how the different functions of REDCap map to AWS Services is shown below.  
-![alt-text](https://github.com/JamesSWiggins/project-redcap-aws-automation/raw/master/images/AWS%20Project%20REDCap%20Block%20Diagram.png "AWS REDCap High-Level Diagram")
+![alt-text](https://github.com/vanderbilt-redcap/redcap-aws-cloudformation/blob/master/images/AWS%20Project%20REDCap%20Block%20Diagram.png "AWS REDCap High-Level Diagram")
 
 Starting from the user, public Internet DNS services are (optionally) provided by **Amazon Route 53**.  This gives you the ability to automatically add a domain to an existing hosted zone in Route 53 (i.e. redcap.example.edu if example.edu is already hosted in Route 53).  In addition, if you are deploying a new domain to Route 53, an SSL certificate can be automatically generated and applied using **AWS Certificate Manager (ACM)**.  This enables HTTPS communication and ensures the data sent from the users is encrypted in-transit (in accordance with HIPAA).  HTTPS communication is also used between the Application Load Balancers and the REDCap servers.
 
@@ -41,7 +41,7 @@ A more detailed, network-oriented diagram of this environment is shown following
 Before deploying an application on AWS that transmits, processes, or stores protected health information (PHI) or personally identifiable information (PII), address your organization's compliance concerns. Make sure that you have worked with your internal compliance and legal team to ensure compliance with the laws and regulations that govern your organization. To understand how you can use AWS services as a part of your overall compliance program, see the [AWS HIPAA Compliance whitepaper](https://d0.awsstatic.com/whitepapers/compliance/AWS_HIPAA_Compliance_Whitepaper.pdf). With that said, we paid careful attention to the HIPAA control set during the design of this solution.
 
 ### Pre-requisite tasks
-0.1. Follow the instructions on the [REDCap website](https://www.project-redcap.org/) to obtain a copy of the REDCap source files.
+0.1. Follow the instructions on the [REDCap website](https://projectredcap.org/) to obtain a copy of the REDCap source files.
 
 0.2. [Create a private S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-bucket.html) and [upload your REDCap source file](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/upload-objects.html) into it.  Ensure that you do not make either the bucket or the source file publicly readable.  This CloudFormation template also creates two additional S3 buckets, so make sure you aren't near the [limit of your maximum number of buckets](https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html) (default is 100).
 
