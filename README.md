@@ -2,7 +2,7 @@
 
 ## Quick Start
 
-<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create?stackName=myredcapstack100&templateURL=https://s3.amazonaws.com/redcap-aws-cloudformation/00-master-rc.yaml" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=myredcapstack100&templateURL=https://s3.amazonaws.com/redcap-aws-cloudformation/00-master-rc.yaml" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
 
 Click the launch button above to begin the process of deploying a REDCap environment on AWS CloudFormation.
 
