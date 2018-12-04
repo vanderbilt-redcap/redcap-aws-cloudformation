@@ -663,7 +663,9 @@ Resources:
                           UPDATE redcap_config SET value = '${S3Bucket}' WHERE field_name = 'amazon_s3_bucket';
                           UPDATE redcap_config SET value = '${S3AccessKey}' WHERE field_name = 'amazon_s3_key';
                           UPDATE redcap_config SET value = '${S3SecretKey}' WHERE field_name = 'amazon_s3_secret'; 
-                          UPDATE redcap_config SET value = '${AWS::Region}' WHERE field_name = 'amazon_s3_endpoint';     
+                          UPDATE redcap_config SET value = '${AWS::Region}' WHERE field_name = 'amazon_s3_endpoint';
+                          -- Manually set flag to indicate that this installation is being run on AWS CloudFormation
+                          REPLACE INTO redcap_config (field_name, value) VALUES ('aws_quickstart', '1');                          
                           -- Add second MySQL user with user and password in *plain text* (will be auto-encrypted by REDCap afterward)
                           REPLACE INTO redcap_config (field_name, value) VALUES
                           ('redcap_updates_user', 'redcap_user2'),
