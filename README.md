@@ -4,7 +4,7 @@
 
 <a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=myredcapstack100&templateURL=https://s3.amazonaws.com/redcap-aws-cloudformation/00-master-rc.yaml" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
 
-Click the launch button above to begin the process of deploying a REDCap environment on AWS CloudFormation.
+Click the launch button above to begin the process of deploying a REDCap environment on AWS CloudFormation. NOTE: This launch button already has the *US East* region pre-selected as part of the URL (i.e., &region=us-east-1), but once you click the button, you can change your preferred deployment region in AWS by selecting it from the top bar of the AWS Console, after which you may need to provide the Amazon S3 Template URL (https://s3.amazonaws.com/redcap-aws-cloudformation/00-master-rc.yaml).
 
 ## Summary
 This repository contains AWS CloudFormation templates to automatically deploy a REDCap environment that adheres to AWS architectural best practices.  In order to use this automation, you must supply your own copy of the REDCap source files.  These are available for qualified entities at https://projectredcap.org.  Once you have downloaded your source files then you can follow the below instructions for deployment.
