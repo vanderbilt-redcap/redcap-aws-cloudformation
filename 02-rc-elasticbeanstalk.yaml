@@ -8,8 +8,7 @@
 
 
 AWSTemplateFormatVersion: '2010-09-09'
-Description: This CloudFormation Template deploys a complete OHDSI environment.  It
-  depends on the OHDSI-VPC CloudFormation Template.
+Description: This CloudFormation Template deploys a complete scalable REDCap environment.
 
 
 
