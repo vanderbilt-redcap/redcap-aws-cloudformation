@@ -1,9 +1,9 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. 
+# Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License.
 # A copy of the License is located at
 #    http://aws.amazon.com/apache2.0/
-# or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
+# or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
 AWSTemplateFormatVersion: 2010-09-09
@@ -61,7 +61,7 @@ Metadata:
         - a2cidr
         - d1cidr
         - d2cidr
-    
+
     ParameterLabels:
       EC2KeyName:
         default: EC2 Key Pair
@@ -140,7 +140,7 @@ Parameters:
     Description: '[ REQUIRED ] The unique name to use for your Elastic Beanstalk URL (will be rendered http://(EBEndpoint).(region).elasticbeanstalk.com).  You can use the "nslookup" to see if an endpoint is in use.'
     ConstraintDescription: 'This name must be between 4 and 40 characters and contain only letters, numbers, and/or a hyphen'
     MaxLength: 40
-    MinLength: 4    
+    MinLength: 4
     Type: String
   UseRoute53Boolean:
     AllowedValues:
@@ -212,56 +212,56 @@ Parameters:
 
   WebInstanceType:
     AllowedValues:
-      - t2.nano 
-      - t2.micro 
-      - t2.small 
-      - t2.medium 
-      - t2.large 
-      - t2.xlarge 
-      - t2.2xlarge 
-      - m3.medium 
-      - m3.large 
-      - m3.xlarge 
-      - m3.2xlarge 
-      - m4.large 
-      - m4.xlarge 
-      - m4.2xlarge 
-      - m4.4xlarge 
-      - m4.10xlarge 
-      - m4.16xlarge 
-      - m5.large 
-      - m5.xlarge 
-      - m5.2xlarge 
-      - m5.4xlarge 
-      - m5.12xlarge 
-      - m5.24xlarge 
-      - c3.large 
-      - c3.xlarge 
-      - c3.2xlarge 
-      - c3.4xlarge 
-      - c3.8xlarge 
-      - c4.large 
-      - c4.xlarge 
-      - c4.2xlarge 
-      - c4.4xlarge 
-      - c4.8xlarge 
-      - c5.large 
-      - c5.xlarge 
-      - c5.2xlarge 
-      - c5.4xlarge 
-      - c5.9xlarge 
+      - t2.nano
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m4.16xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.12xlarge
+      - m5.24xlarge
+      - c3.large
+      - c3.xlarge
+      - c3.2xlarge
+      - c3.4xlarge
+      - c3.8xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
       - c5.18xlarge
-      - r3.large 
-      - r3.xlarge 
-      - r3.2xlarge 
-      - r3.4xlarge 
-      - r3.8xlarge 
-      - r4.large 
-      - r4.xlarge 
-      - r4.2xlarge 
-      - r4.4xlarge 
-      - r4.8xlarge 
-      - r4.16xlarge 
+      - r3.large
+      - r3.xlarge
+      - r3.2xlarge
+      - r3.4xlarge
+      - r3.8xlarge
+      - r4.large
+      - r4.xlarge
+      - r4.2xlarge
+      - r4.4xlarge
+      - r4.8xlarge
+      - r4.16xlarge
     ConstraintDescription: Must be a valid Amazon EC2 instance type.
     Default: t2.micro
     Description: The Amazon EC2 instance type for your web instances.
@@ -324,9 +324,9 @@ Parameters:
 
 
 Conditions:
-  DeployRoute53: 
+  DeployRoute53:
     !Equals [ true, !Ref UseRoute53Boolean ]
-  DeployACM: !And 
+  DeployACM: !And
     - !Equals [ true, !Ref UseACMBoolean ]
     - !Condition DeployRoute53
 
@@ -422,7 +422,7 @@ Resources:
         SGData:
           !GetAtt 'VPCStack.Outputs.SGData'
         EBServiceRole:
-          !GetAtt 'VPCStack.Outputs.EBServiceRole'      
+          !GetAtt 'VPCStack.Outputs.EBServiceRole'
         EBInstanceProfile:
           !GetAtt 'VPCStack.Outputs.EBInstanceProfile'
         TempEC2InstanceProfile:

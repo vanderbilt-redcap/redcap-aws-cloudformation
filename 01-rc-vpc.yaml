@@ -1,9 +1,9 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. 
+# Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License.
 # A copy of the License is located at
 #    http://aws.amazon.com/apache2.0/
-# or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, 
+# or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
 AWSTemplateFormatVersion: '2010-09-09'
@@ -74,10 +74,10 @@ Parameters:
 
 
 
-Conditions:    
-  DeployRoute53: 
+Conditions:
+  DeployRoute53:
     !Equals [ true, !Ref UseRoute53Boolean ]
-  DeployACM: !And 
+  DeployACM: !And
     - !Equals [ true, !Ref UseACMBoolean ]
     - !Condition DeployRoute53
   NoDeployACM: !Or
@@ -184,7 +184,7 @@ Resources:
       Tags:
         - Key: Name
           Value: Public B
-  
+
 
 
 #Security Groups for the three tiered network architecture
@@ -245,7 +245,7 @@ Resources:
           Value: DB Security Group
 
 
-  
+
 #Route tables and route definitions for the three tiered network architecture
   Route:
     Type: AWS::EC2::Route
@@ -263,7 +263,7 @@ Resources:
       VpcId: !Ref 'vpc27bc775f'
       Tags:
         - Key: Name
-          Value: Public  
+          Value: Public
   subnetroute1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -300,7 +300,7 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       RouteTableId: !Ref 'rtb3756d74d'
       GatewayId: !Ref 'igw8d9149f4'
-    DependsOn: gw1  
+    DependsOn: gw1
 
 
 
@@ -364,7 +364,7 @@ Resources:
                 - ec2.amazonaws.com
             Action:
               - 'sts:AssumeRole'
-      ManagedPolicyArns: 
+      ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
       Policies:
         - PolicyName: root
@@ -376,24 +376,24 @@ Resources:
                   - 's3:*'
                 Effect: Allow
                 Resource:
-                  - !Join 
+                  - !Join
                     - ''
                     - - 'arn:aws'
                       - ':s3:::elasticbeanstalk-*-'
                       - !Ref 'AWS::AccountId'
-                  - !Join 
+                  - !Join
                     - ''
                     - - 'arn:aws'
                       - ':s3:::elasticbeanstalk-*-'
                       - !Ref 'AWS::AccountId'
                       - /*
-                  - !Join 
+                  - !Join
                     - ''
                     - - 'arn:aws'
                       - ':s3:::elasticbeanstalk-*-'
                       - !Ref 'AWS::AccountId'
                       - '-*'
-                  - !Join 
+                  - !Join
                     - ''
                     - - 'arn:aws'
                       - ':s3:::elasticbeanstalk-*-'
@@ -481,13 +481,13 @@ Resources:
       PolicyDocument:
         Statement:
           - Effect: Allow
-            Action: 
+            Action:
               - "s3:*"
               - "cloudformation:DescribeStackResources"
               - "cloudformation:DescribeStackResource"
-            Resource: 
+            Resource:
               - !Join [ "", [ 'arn:aws:s3:::', !Ref RedcapS3Bucket ] ]
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref RedcapS3Bucket, '/*' ] ]              
+              - !Join [ "", [ 'arn:aws:s3:::', !Ref RedcapS3Bucket, '/*' ] ]
               - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp' ] ]
               - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp', '/*' ] ]
               - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository' ] ]
@@ -498,7 +498,7 @@ Resources:
             Resource:
               - '*'
           - Effect: Allow
-            Action: 
+            Action:
               - 'logs:CreateLogGroup'
               - 'logs:CreateLogStream'
               - 'logs:PutLogEvents'
@@ -523,9 +523,9 @@ Resources:
         PolicyDocument:
           Statement:
             - Effect: Allow
-              Action: 
+              Action:
                 - "s3:*"
-              Resource: 
+              Resource:
               - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository' ] ]
               - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository', '/*' ] ]
   REDCapAccessKey:
