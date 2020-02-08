@@ -190,14 +190,22 @@ Parameters:
     AllowedValues:
       - db.t2.small
       - db.t2.medium
+      - db.t3.small
+      - db.t3.medium
       - db.r4.large
       - db.r4.xlarge
       - db.r4.2xlarge
       - db.r4.4xlarge
       - db.r4.8xlarge
       - db.r4.16xlarge
+      - db.r5.large
+      - db.r5.xlarge
+      - db.r5.2xlarge
+      - db.r5.4xlarge
+      - db.r5.8xlarge
+      - db.r5.16xlarge
     ConstraintDescription: Must be a valid RDS instance class.
-    Default: db.t2.small
+    Default: db.t3.small
     Description: The Amazon RDS database instance class (determines processing power and memory capacity of the database).
     Type: String
   DatabaseMasterPassword:
@@ -219,6 +227,13 @@ Parameters:
       - t2.large
       - t2.xlarge
       - t2.2xlarge
+      - t3.nano
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
       - m3.medium
       - m3.large
       - m3.xlarge
@@ -262,8 +277,14 @@ Parameters:
       - r4.4xlarge
       - r4.8xlarge
       - r4.16xlarge
+      - r5.large
+      - r5.xlarge
+      - r5.2xlarge
+      - r5.4xlarge
+      - r5.8xlarge
+      - r5.16xlarge
     ConstraintDescription: Must be a valid Amazon EC2 instance type.
-    Default: t2.micro
+    Default: t3.micro
     Description: The Amazon EC2 instance type for your web instances.
     Type: String
   WebAsgMax:
