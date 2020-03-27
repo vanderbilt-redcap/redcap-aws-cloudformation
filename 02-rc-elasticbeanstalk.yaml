@@ -726,7 +726,7 @@ Resources:
                           sed -i "170iMASQUERADE_AS(\`${HostedZone}')dnl" /etc/mail/sendmail.mc
                           sed -i "170iFEATURE(\`authinfo', \`hash -o /etc/mail/authinfo.db')dnl" /etc/mail/sendmail.mc
                           sed -i "170idefine(\`confAUTH_MECHANISMS', \`LOGIN PLAIN')dnl" /etc/mail/sendmail.mc
-                          sed -i "170idefine(\`RELAY_MAILER_ARGS', \`TCP \$h 25')dnl" /etc/mail/sendmail.mc
+                          sed -i "170idefine(\`RELAY_MAILER_ARGS', \`TCP \$h 587')dnl" /etc/mail/sendmail.mc
                           sed -i "170idefine(\`SMART_HOST', \`email-smtp.us-east-1.amazonaws.com')dnl" /etc/mail/sendmail.mc
                           chmod 666 /etc/mail/sendmail.cf
                           m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
