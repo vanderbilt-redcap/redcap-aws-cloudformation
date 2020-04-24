@@ -701,7 +701,7 @@ Resources:
                           if [ ! -f /eb-configured ]; then
                           
                           if [ "${PHPVersion}" = "7.0" ]; then
-                            yum install -y mysql57 php70-ldap sendmail-cf
+                            yum install -y mysql57 php70-ldap php70-zip sendmail-cf
                           fi
 
                           if [ "${PHPVersion}" = "7.1" ]; then
