@@ -8,9 +8,8 @@
 
 
 AWSTemplateFormatVersion: '2010-09-09'
-Description: This CloudFormation Template deploys a complete scalable REDCap environment.
-
-
+Description: This CloudFormation Template deploys a complete REDCap environment.  It
+  depends on the REDCap-vpc CloudFormation Template.
 
 Parameters:
   SESUsername:
@@ -116,6 +115,15 @@ Parameters:
     ConstraintDescription: Must be a valid Amazon EC2 instance type.
     Default: t2.micro
     Description: The Amazon EC2 instance type for your web instances.
+    Type: String
+  PHPVersion:
+    AllowedValues:
+      - 7.0
+      - 7.1
+      - 7.2
+      - 7.3
+    Default: 7.0
+    Description: The version of PHP to use with REDCap.
     Type: String
   S3FileRepositoryBucket:
     Type: String
@@ -662,9 +670,9 @@ Resources:
                           UPDATE redcap_config SET value = '${S3Bucket}' WHERE field_name = 'amazon_s3_bucket';
                           UPDATE redcap_config SET value = '${S3AccessKey}' WHERE field_name = 'amazon_s3_key';
                           UPDATE redcap_config SET value = '${S3SecretKey}' WHERE field_name = 'amazon_s3_secret'; 
-                          UPDATE redcap_config SET value = '${AWS::Region}' WHERE field_name = 'amazon_s3_endpoint';
+                          UPDATE redcap_config SET value = '${AWS::Region}' WHERE field_name = 'amazon_s3_endpoint';     
                           -- Manually set flag to indicate that this installation is being run on AWS CloudFormation
-                          REPLACE INTO redcap_config (field_name, value) VALUES ('aws_quickstart', '1');                          
+                          REPLACE INTO redcap_config (field_name, value) VALUES ('aws_quickstart', '1'); 
                           -- Add second MySQL user with user and password in *plain text* (will be auto-encrypted by REDCap afterward)
                           REPLACE INTO redcap_config (field_name, value) VALUES
                           ('redcap_updates_user', 'redcap_user2'),
@@ -692,7 +700,22 @@ Resources:
                           #only do the below tasks if it's the first deployment to this server.
                           if [ ! -f /eb-configured ]; then
                           
-                          yum install -y mysql57 php70-zip php70-ldap sendmail-cf
+                          if [ "${PHPVersion}" = "7.0" ]; then
+                            yum install -y mysql57 php70-ldap php70-zip sendmail-cf
+                          fi
+
+                          if [ "${PHPVersion}" = "7.1" ]; then
+                            yum install -y mysql57 php71-ldap sendmail-cf
+                          fi
+
+                          if [ "${PHPVersion}" = "7.2" ]; then
+                            yum install -y mysql57 php72-ldap sendmail-cf
+                          fi
+
+                          if [ "${PHPVersion}" = "7.3" ]; then
+                            yum install -y mysql57 php73-ldap sendmail-cf
+                          fi                        
+                          
                           yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
                           restart amazon-ssm-agent
                           
@@ -839,6 +862,10 @@ Resources:
           yum update -y aws-cli 
           yum install -y awslogs
 
+          # Install SSM client
+          yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+          restart amazon-ssm-agent
+
           aws configure set metadata_service_timeout 10
           aws configure set metadata_service_num_attempts 5
           #Use cfn-init to grab and apply the files specified in the above UserData
@@ -860,10 +887,12 @@ Resources:
           aws s3 mb s3://${S3FileRepositoryBucket}
           aws s3api put-bucket-encryption --bucket ${S3FileRepositoryBucket} --server-side-encryption-configuration '{ "Rules": [ { "ApplyServerSideEncryptionByDefault": { "SSEAlgorithm": "AES256" } } ] }'
           #Tell Elastic Beanstalk what the latest PHP 7 solution stack is 
-          export SOLUTION_STACK=`aws elasticbeanstalk list-available-solution-stacks | grep "PHP 7" | head -1 | cut -d \" -f2`
+          echo ${PHPVersion}
+          export SOLUTION_STACK=`aws elasticbeanstalk list-available-solution-stacks | grep -v "SolutionStackName" | grep "PHP ${PHPVersion}" | head -1 | cut -d \" -f2`
+          echo $SOLUTION_STACK
           /opt/aws/bin/cfn-signal --stack ${AWS::StackName} --region ${AWS::Region} "${EC2WaitHandle}" -d "$SOLUTION_STACK"
           #Shutdown and terminate this temporary instance 
-          sleep 20
+          sleep 600
           shutdown -h now
   EC2WaitCondition:
     Type: "AWS::CloudFormation::WaitCondition"

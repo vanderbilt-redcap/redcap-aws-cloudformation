@@ -46,6 +46,7 @@ Metadata:
         - WebInstanceType
         - WebAsgMax
         - WebAsgMin
+        - PHPVersion
     - Label:
         default: 'REDCap Source Code - Create a bucket in S3 and then upload the REDCap install zip file (e.g. redcap8.6.0.zip) to that bucket'
       Parameters:
@@ -100,6 +101,8 @@ Metadata:
         default: Minimum REDCap Instances
       WebInstanceType:
         default: Web Tier Instance Type
+      PHPVersion:
+        default: PHP Version
 
       RedcapS3Bucket:
         default: S3 Bucket
@@ -278,6 +281,17 @@ Parameters:
     Default: 2
     Description: Specifies the minimum number of EC2 instances in the Web Autoscaling Group.  A value of >1 will a highly available environment by placing instances in multiple availability zones.
     Type: String
+  
+  PHPVersion:
+    AllowedValues:
+      - 7.0
+      - 7.1
+      - 7.2
+      - 7.3
+    Default: 7.3
+    Description: The version of PHP to use with REDCap.  PHP 7.3 is recommended.
+    Type: String
+
   RedcapS3Bucket:
     Description: "The name of the S3 bucket that contains your REDCap source zip file (e.g. myredcapsourcefiles)"
     Type: String
@@ -380,6 +394,8 @@ Resources:
           !Ref WebAsgMin
         WebInstanceType:
           !Ref WebInstanceType
+        PHPVersion:
+          !Ref PHPVersion
         S3AccessKey:
           !GetAtt 'VPCStack.Outputs.S3AccessKey'
         S3SecretKey:
