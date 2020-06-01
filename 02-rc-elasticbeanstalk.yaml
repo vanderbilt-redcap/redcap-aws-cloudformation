@@ -742,15 +742,15 @@ Resources:
                           service httpd restart
                           
                           #sendmail configuration to enable sending e-mails
-                          makemap hash /etc/mail/authinfo.db <<< "AuthInfo:email-smtp.us-east-1.amazonaws.com \"U:root\" \"I:${SESu}\" \"P:${SESpw}\" \"M:LOGIN\""
-                          makemap hash /etc/mail/access.db <<< "Connect:email-smtp.us-east-1.amazonaws.com RELAY"
+                          makemap hash /etc/mail/authinfo.db <<< "AuthInfo:email-smtp.${AWS::Region}.amazonaws.com \"U:root\" \"I:${SESu}\" \"P:${SESpw}\" \"M:LOGIN\""
+                          makemap hash /etc/mail/access.db <<< "Connect:email-smtp.${AWS::Region}.amazonaws.com RELAY"
                           sed -i "170iFEATURE(masquerade_entire_domain)dnl" /etc/mail/sendmail.mc
                           sed -i "170iFEATURE(masquerade_envelope)dnl" /etc/mail/sendmail.mc
                           sed -i "170iMASQUERADE_AS(\`${HostedZone}')dnl" /etc/mail/sendmail.mc
                           sed -i "170iFEATURE(\`authinfo', \`hash -o /etc/mail/authinfo.db')dnl" /etc/mail/sendmail.mc
                           sed -i "170idefine(\`confAUTH_MECHANISMS', \`LOGIN PLAIN')dnl" /etc/mail/sendmail.mc
                           sed -i "170idefine(\`RELAY_MAILER_ARGS', \`TCP \$h 587')dnl" /etc/mail/sendmail.mc
-                          sed -i "170idefine(\`SMART_HOST', \`email-smtp.us-east-1.amazonaws.com')dnl" /etc/mail/sendmail.mc
+                          sed -i "170idefine(\`SMART_HOST', \`email-smtp.${AWS::Region}.amazonaws.com')dnl" /etc/mail/sendmail.mc
                           chmod 666 /etc/mail/sendmail.cf
                           m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
                           chmod 644 /etc/mail/sendmail.cf
