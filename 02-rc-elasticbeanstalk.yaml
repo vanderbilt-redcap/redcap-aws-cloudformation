@@ -673,6 +673,9 @@ Resources:
                           ('redcap_updates_user', 'redcap_user2'),
                           ('redcap_updates_password', '${DBPassword}'),
                           ('redcap_updates_password_encrypted', '0');
+                          -- Translate old admin privileges for newer versions
+                          update redcap_user_information set account_manager = 1, access_system_config = 1, access_system_upgrade = 1,
+                            access_external_module_install = 1, admin_rights = 1, access_admin_dashboards = 1 where super_user = 1;
                   - { DBPassword: !Ref DatabaseMasterPassword, S3Bucket: !Ref S3FileRepositoryBucket }
                 mode: 000500
                 owner: root
