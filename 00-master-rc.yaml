@@ -284,12 +284,11 @@ Parameters:
   
   PHPVersion:
     AllowedValues:
-      - 7.0
-      - 7.1
       - 7.2
       - 7.3
-    Default: 7.3
-    Description: The version of PHP to use with REDCap.  PHP 7.3 is recommended.
+      - 7.4
+    Default: 7.4
+    Description: The version of PHP to use with REDCap.  PHP 7.4 is recommended.
     Type: String
 
   RedcapS3Bucket:
