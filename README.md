@@ -2,9 +2,11 @@
 
 ## Quick Start
 
-<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=myredcapstack100&templateURL=https://s3.amazonaws.com/redcap-aws-cloudformation/00-master-rc.yaml" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
+<a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=myredcapstack100&templateURL=https://redcap-aws-cloudformation.s3.amazonaws.com/00-master-rc.yaml" target="_blank"><img src="https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png"/></a> 
 
 Click the launch button above to begin the process of deploying a REDCap environment on AWS CloudFormation. NOTE: This launch button already has the *US East* region pre-selected as part of the URL (i.e., &region=us-east-1), but once you click the button, you can change your preferred deployment region in AWS by selecting it from the top bar of the AWS Console, after which you may need to provide the Amazon S3 Template URL (https://s3.amazonaws.com/redcap-aws-cloudformation/00-master-rc.yaml).
+
+**This automation has now been updated to deploy using Amazon Linux 2!  If you'd like to upgrade your existing Amazon Linux 1 environment, [instructions can be found here.](./AmazonLinux2upgradescripts/)**
 
 ## Summary
 This repository contains AWS CloudFormation templates to automatically deploy a REDCap environment that adheres to AWS architectural best practices.  In order to use this automation, you must supply your own copy of the REDCap source files.  These are available for qualified entities at https://projectredcap.org.  Once you have downloaded your source files then you can follow the below instructions for deployment.
@@ -116,6 +118,3 @@ To access your current application version, open the [Elastic Beanstalk console]
 Once you've downloaded the zip file, you can open it and find the directory called **.ebextensions/**.  This directory [contains configuration files with a specific, YAML format](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers-ec2.html) that tell Elastic Beanstalk which steps to perform when deploying this application.  You can also use this directory to add files to the filesystem of each Elastic Beanstalk instance by creating a directory structure.  On Elastic Beanstalk PHP servers, the PHP application is deployed to **/var/app/current/**, and we know that we need to update the file within the REDCap application called **./redcap/webtools2/ldap/ldap_config.php**.  So, within create the directory structure within your application zip file **.ebextensions/var/app/current/redcap/webtools2/ldap/** and place your updated **ldap_config.php** file within it.  As you can see, the directory structure of your Elastic Beanstalk application zip file is very important, so be careful to precisely capture it.
 
 Now you can [upload your modified application zip file as a new version](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/applications-versions.html) to your Elastic Beanstalk REDCap environment.  Once the new version has been uploaded, select it and [deploy it to your REDCap Environment](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.deploy-existing-version.html).  There are several different deployment options provided by Elastic Beanstalk that help you manage deployment time, application downtime, and the impact of a failed deployment.  Once your new application version has been applied with your REDCap application filesystem changes it will be used to keep your environment in sync when new instances are created if your environment scales out, if an instance fails, or if you need to re-create your environment for operational or disaster recovery.
-
-
-

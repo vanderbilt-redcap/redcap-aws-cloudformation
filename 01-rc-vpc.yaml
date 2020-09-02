@@ -200,6 +200,10 @@ Resources:
           FromPort: '443'
           ToPort: '443'
           CidrIp: !Ref 'AccessCidr'
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: !Ref 'AccessCidr'
       Tags:
         - Key: Name
           Value: Public Security Group
@@ -399,6 +403,17 @@ Resources:
                       - ':s3:::elasticbeanstalk-*-'
                       - !Ref 'AWS::AccountId'
                       - '-*/*'
+                  - !Join 
+                    - ''
+                    - - 'arn:aws'
+                      - ':s3:::cf-templates-*'
+                      - !Ref 'AWS::AccountId'
+                  - !Join 
+                    - ''
+                    - - 'arn:aws'
+                      - ':s3:::cf-templates-*'
+                      - !Ref 'AWS::AccountId'
+                      - '/*'
                   - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp' ] ]
                   - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp', '/*' ] ]
               - Sid: MetricsAccess
@@ -447,12 +462,17 @@ Resources:
                   - "cloudformation:GetTemplate"
                   - 'cloudformation:DescribeStackResources'
                   - 'cloudformation:DescribeStackResource'
+                  - 'cloudformation:UpdateStack'
+                  - "cloudformation:DescribeStacks"
+                  - "cloudformation:DescribeStackEvents"
                   - "autoscaling:DescribeAutoScalingGroups"
                   - "autoscaling:SuspendProcesses"
                   - "autoscaling:DescribeScalingActivities"
                   - "autoscaling:ResumeProcesses"
+                  - "autoscaling:DescribeLaunchConfigurations"
                   - "elasticloadbalancing:DescribeTargetGroups"
                   - "elasticloadbalancing:RegisterTargets"
+                  - "elasticloadbalancing:DescribeLoadBalancers"
                 Effect: Allow
                 Resource: '*'
       Path: /
