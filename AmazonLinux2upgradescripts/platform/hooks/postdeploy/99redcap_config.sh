@@ -47,7 +47,7 @@ fi
 rm -f /curl.out /mysql.sql /mysql-rc.sql /create-redcap-user.sql /create-initial-user.sql
 
 #Apply additional PHP configuration as specified by REDCap
-echo "max_input_vars = 10000" >> /etc/php.ini
+echo "max_input_vars = 100000" >> /etc/php.ini
 sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 32M/" /etc/php.ini
 sed -i "s/post_max_size = 8M/post_max_size = 32M/" /etc/php.ini
 
