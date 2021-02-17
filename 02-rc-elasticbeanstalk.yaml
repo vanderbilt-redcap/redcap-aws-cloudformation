@@ -773,14 +773,14 @@ Resources:
                     systemctl restart php-fpm
                     
                     #sendmail configuration to enable sending e-mails
-                    sudo postconf -e "relayhost = [email-smtp.us-east-1.amazonaws.com]:587" \
+                    sudo postconf -e "relayhost = [email-smtp.${AWS::Region}.amazonaws.com]:587" \
                     "smtp_sasl_auth_enable = yes" \
                     "smtp_sasl_security_options = noanonymous" \
                     "smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd" \
                     "smtp_use_tls = yes" \
                     "smtp_tls_security_level = encrypt" \
                     "smtp_tls_note_starttls_offer = yes"
-                    echo "[email-smtp.us-east-1.amazonaws.com]:587 ${SESu}:${SESpw}" >> /etc/postfix/sasl_passwd
+                    echo "[email-smtp.${AWS::Region}.amazonaws.com]:587 ${SESu}:${SESpw}" >> /etc/postfix/sasl_passwd
                     sudo postmap hash:/etc/postfix/sasl_passwd
                     sudo postconf -e 'smtp_tls_CAfile = /etc/ssl/certs/ca-bundle.crt'
                     sudo postfix start
