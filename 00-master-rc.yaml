@@ -34,6 +34,7 @@ Metadata:
       Parameters:
         - SESUsername
         - SESPassword
+        - SESRegion
     - Label:
         default: Database Tier
       Parameters:
@@ -86,6 +87,8 @@ Metadata:
         default: SES Username
       SESPassword:
         default: SES Password
+      SESRegion:
+        default: SES Region
 
       MultiAZDatabase:
         default: Use Primary and Standby Database Instances?
@@ -180,6 +183,26 @@ Parameters:
     Type: String
     Description: '[ Required ] Password to use for authentication to SES.'
     NoEcho: true
+  SESRegion:
+    Type: String
+    AllowedValues:
+      - us-east-2
+      - us-east-1
+      - us-west-1
+      - us-west-2
+      - ap-south-1
+      - ap-northeast-2
+      - ap-southeast-1
+      - ap-southeast-2
+      - ap-northeast-1
+      - ca-central-1
+      - eu-central-1
+      - eu-west-1
+      - eu-west-2
+      - eu-west-3
+      - eu-north-1
+      - sa-east-1
+    Description: Region where you configured your SES credentials.
 
 
   MultiAZDatabase:
@@ -379,6 +402,8 @@ Resources:
           !Ref SESUsername
         SESPassword:
           !Ref SESPassword
+        SESRegion:
+          !Ref SESRegion
         DatabaseMasterPassword:
           !Ref DatabaseMasterPassword
         DatabaseInstanceType:

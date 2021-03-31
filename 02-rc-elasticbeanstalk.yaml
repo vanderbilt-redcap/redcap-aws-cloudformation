@@ -19,6 +19,26 @@ Parameters:
     Type: String
     Description: Username to use for authentication to SES.
     NoEcho: true
+  SESRegion:
+    Type: String
+    AllowedValues:
+      - us-east-2
+      - us-east-1
+      - us-west-1
+      - us-west-2
+      - ap-south-1
+      - ap-northeast-2
+      - ap-southeast-1
+      - ap-southeast-2
+      - ap-northeast-1
+      - ca-central-1
+      - eu-central-1
+      - eu-west-1
+      - eu-west-2
+      - eu-west-3
+      - eu-north-1
+      - sa-east-1
+    Description: Region where you configured your SES credentials.
   S3AccessKey:
     Type: String
     NoEcho: True
@@ -773,14 +793,14 @@ Resources:
                     systemctl restart php-fpm
                     
                     #sendmail configuration to enable sending e-mails
-                    sudo postconf -e "relayhost = [email-smtp.us-east-1.amazonaws.com]:587" \
+                    sudo postconf -e "relayhost = [email-smtp.${SESReg}.amazonaws.com]:587" \
                     "smtp_sasl_auth_enable = yes" \
                     "smtp_sasl_security_options = noanonymous" \
                     "smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd" \
                     "smtp_use_tls = yes" \
                     "smtp_tls_security_level = encrypt" \
                     "smtp_tls_note_starttls_offer = yes"
-                    echo "[email-smtp.us-east-1.amazonaws.com]:587 ${SESu}:${SESpw}" >> /etc/postfix/sasl_passwd
+                    echo "[email-smtp.${SESReg}.amazonaws.com]:587 ${SESu}:${SESpw}" >> /etc/postfix/sasl_passwd
                     sudo postmap hash:/etc/postfix/sasl_passwd
                     sudo postconf -e 'smtp_tls_CAfile = /etc/ssl/certs/ca-bundle.crt'
                     sudo postfix start
@@ -789,7 +809,7 @@ Resources:
                     else 
                     echo "Already ran EB configuration scripts.  This must be an application redeployment"
                     fi
-                  - { RDSEndpoint: !GetAtt RDSCluster.Endpoint.Address, DBPassword: !Ref DatabaseMasterPassword, Protocol: !If [ DeployACM, 'https://', 'http://' ], RCDomainName: !If [DeployRoute53, !Ref DomainName, !Ref EBEndpoint], HostedZone: !If [DeployRoute53, !Ref HostedZoneName, !Join ['.', [!Ref 'AWS::Region', 'elasticbeanstalk.com']]], SESu: !Ref SESUsername, SESpw: !Ref SESPassword }
+                  - { SESReg: !Ref SESRegion, RDSEndpoint: !GetAtt RDSCluster.Endpoint.Address, DBPassword: !Ref DatabaseMasterPassword, Protocol: !If [ DeployACM, 'https://', 'http://' ], RCDomainName: !If [DeployRoute53, !Ref DomainName, !Ref EBEndpoint], HostedZone: !If [DeployRoute53, !Ref HostedZoneName, !Join ['.', [!Ref 'AWS::Region', 'elasticbeanstalk.com']]], SESu: !Ref SESUsername, SESpw: !Ref SESPassword }
                 mode: 000770
                 owner: root
                 group: root
