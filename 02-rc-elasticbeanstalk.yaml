@@ -38,6 +38,7 @@ Parameters:
       - eu-west-3
       - eu-north-1
       - sa-east-1
+      - us-gov-west-1
     Description: Region where you configured your SES credentials.
   S3AccessKey:
     Type: String
@@ -257,6 +258,8 @@ Mappings:
       AMI: ami-0a10b2721688ce9d2
     ap-northeast-3:
       AMI: ami-0d98120a9fb693f07
+    us-gov-west-1:
+      AMI: ami-906cf0f1
 
 
 Conditions:
