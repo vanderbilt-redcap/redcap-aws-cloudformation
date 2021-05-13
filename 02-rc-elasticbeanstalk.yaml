@@ -12,42 +12,6 @@ Description: This CloudFormation Template deploys a complete REDCap environment.
   depends on the REDCap-vpc CloudFormation Template.
 
 Parameters:
-  SESUsername:
-    Type: String
-    Description: Username to use for authentication to SES.
-  SESPassword:
-    Type: String
-    Description: Username to use for authentication to SES.
-    NoEcho: true
-  SESRegion:
-    Type: String
-    AllowedValues:
-      - us-east-2
-      - us-east-1
-      - us-west-1
-      - us-west-2
-      - ap-south-1
-      - ap-northeast-2
-      - ap-southeast-1
-      - ap-southeast-2
-      - ap-northeast-1
-      - ca-central-1
-      - eu-central-1
-      - eu-west-1
-      - eu-west-2
-      - eu-west-3
-      - eu-north-1
-      - sa-east-1
-      - us-gov-west-1
-    Description: Region where you configured your SES credentials.
-  S3AccessKey:
-    Type: String
-    NoEcho: True
-    Description: S3 Access Key to use to access REDCap File Repository Bucket
-  S3SecretKey:
-    Type: String
-    NoEcho: True
-    Description: S3 Access Key to use to access REDCap File Repository Bucket
   MultiAZDatabase:
     AllowedValues:
       - true
@@ -137,17 +101,6 @@ Parameters:
     Default: t2.micro
     Description: The Amazon EC2 instance type for your web instances.
     Type: String
-  PHPVersion:
-    AllowedValues:
-      - 7.2
-      - 7.3
-      - 7.4
-    Default: 7.4
-    Description: The version of PHP to use with REDCap.
-    Type: String
-  S3FileRepositoryBucket:
-    Type: String
-    Description: 'S3 Bucket Name to be used for REDCap File Repository'
   SslCertificate:
     Type: String
     Description: "AWS ARN to ACM generated SSL certificate." 
@@ -168,20 +121,6 @@ Parameters:
       - false
     Default: true
     Description: Specifies whether an SSL certificate should be generated for your domain name using AWS Certificate Manager (ACM).  If one is not generated, HTTP will be used and an SSL certificate can be applied after deployment.
-    Type: String
-  HostedZoneName:
-    Type: String
-    Description: "The hosted zone that will be used by your application.  If using the Elastic Beanstalk provided hosted zone in us-east-1, just accept the default value."
-    Default: us-east-1.elasticbeanstalk.com
-  DomainName:
-    AllowedPattern: ^$|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
-    Description: '[ Optional, only if using Route53 ] The sub-domain name of the Project REDCap site.  This sub-domain will be prepended your specified Hosted Zone (e.g. redcap in redcap.example.edu).'
-    Type: String
-  RedcapS3Bucket:
-    Description: "S3 bucket that contains your REDCap binary file"
-    Type: String
-  RedcapS3Key:
-    Description: "S3 Key that points to your Redcap Binary file"
     Type: String
   DatabaseMasterPassword:
     Description: Must be letters (upper or lower), numbers, spaces, and these special characters `~#$%^&*()_+,-
