@@ -393,22 +393,18 @@ Resources:
         R53HostedZoneId: !Ref 'HostedZoneId'
         R53DomainName: !Join ['', [!Ref DomainName, '.', !Ref HostedZoneName]]
       TemplateURL: https://s3.amazonaws.com/redcap-aws-cloudformation/01-rc-certificate.yaml
-  redcapiam:
+  redcapelasticbeanstalk:
     DependsOn: [ VPCStack ]
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        RedcapS3Bucket:
-          !Ref RedcapS3Bucket
-        SubnetPublicA:
-          !GetAtt 'VPCStack.Outputs.SubnetPublicA'
-      TemplateURL: https://s3.amazonaws.com/redcap-aws-cloudformation/01-rc-iam.yaml
-  redcapelasticbeanstalk:
-    DependsOn: [ redcapiam ]
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      Parameters:
         EBBucket: !Join [ "", [ !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !GetAtt 'VPCStack.Outputs.SubnetPublicA'] ], '-redcapebapp' ] ]
+        SESUsername:
+          !Ref SESUsername
+        SESPassword:
+          !Ref SESPassword
+        SESRegion:
+          !Ref SESRegion
         DatabaseMasterPassword:
           !Ref DatabaseMasterPassword
         DatabaseInstanceType:
@@ -423,12 +419,27 @@ Resources:
           !Ref WebAsgMin
         WebInstanceType:
           !Ref WebInstanceType
+        PHPVersion:
+          !Ref PHPVersion
+        S3AccessKey:
+          !GetAtt 'VPCStack.Outputs.S3AccessKey'
+        S3SecretKey:
+          !GetAtt 'VPCStack.Outputs.S3SecretKey'
+        S3FileRepositoryBucket: !Join [ "", [ !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !GetAtt 'VPCStack.Outputs.SubnetPublicA'] ], '-redcaprepository' ] ]
         EBEndpoint:
           !Ref EBEndpoint
         UseRoute53Boolean:
           !Ref UseRoute53Boolean
         UseACMBoolean:
           !Ref UseACMBoolean
+        HostedZoneName:
+          !If [ DeployRoute53, !Ref HostedZoneName, '' ]
+        DomainName:
+          !If [ DeployRoute53, !Ref DomainName, '' ]
+        RedcapS3Bucket:
+          !Ref RedcapS3Bucket
+        RedcapS3Key:
+          !Ref RedcapS3Key
         EC2KeyName:
           !Ref EC2KeyName
         VPCId:
