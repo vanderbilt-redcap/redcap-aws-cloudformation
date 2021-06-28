@@ -26,7 +26,7 @@ Metadata:
         - EBEndpoint
         - UseRoute53Boolean
         - UseACMBoolean
-        - HostedZoneId
+        - HostedZoneIda
         - HostedZoneName
         - DomainName
     - Label:
@@ -49,10 +49,15 @@ Metadata:
         - WebAsgMin
         - PHPVersion
     - Label:
-        default: 'REDCap Source Code - Create a bucket in S3 and then upload the REDCap install zip file (e.g. redcap8.6.0.zip) to that bucket'
+        default: 'REDCap Application Source'
       Parameters:
+        - S3orAPI
+        - RedcapUname
+        - RedcapPword
+        - Redcapver        
         - RedcapS3Bucket
         - RedcapS3Key
+
     - Label:
         default: VPC Networking (changing this is optional)
       Parameters:
@@ -76,7 +81,7 @@ Metadata:
         default: Use Route 53?
       UseACMBoolean:
         default: Use AWS Certificate Manager?
-      HostedZoneId:
+      HostedZoneIda:
         default: Route53 Hosted Zone ID
       HostedZoneName:
         default: Hosted Zone
@@ -107,6 +112,14 @@ Metadata:
       PHPVersion:
         default: PHP Version
 
+      S3orAPI:
+        default: Download REDCap automatically?
+      RedcapUname:
+        default: REDCap Community Username
+      RedcapPword:
+        default: REDCap Community Password
+      Redcapver:
+        default: REDCap version      
       RedcapS3Bucket:
         default: S3 Bucket
       RedcapS3Key:
@@ -162,7 +175,7 @@ Parameters:
     Default: false
     Description: '[ Requires Route53 ] Specifies whether an SSL certificate should be generated for your domain name using AWS Certificate Manager (ACM).  If one is not generated, HTTP will be used and an SSL certificate can be applied after deployment.'
     Type: String
-  HostedZoneId:
+  HostedZoneIda:
     Description: '[ Optional, only if using Route53 ] The Route 53 hosted zone ID to create the domain in (e.g. Z2FDTNDATAQYW2).'
     Type: String
   HostedZoneName:
@@ -202,6 +215,7 @@ Parameters:
       - eu-west-3
       - eu-north-1
       - sa-east-1
+      - us-gov-west-1 
     Description: Region where you configured your SES credentials.
 
 
@@ -314,12 +328,31 @@ Parameters:
     Description: The version of PHP to use with REDCap.  PHP 7.4 is recommended.
     Type: String
 
+
+  S3orAPI:
+    Description: "Download REDCap automatically or provide it in S3?"
+    Type: String
+    AllowedValues:
+      - "Provide in S3"
+      - "Download using REDCap API"
+    Default: "Download using REDCap API"
   RedcapS3Bucket:
-    Description: "The name of the S3 bucket that contains your REDCap source zip file (e.g. myredcapsourcefiles)"
+    Description: "The name of the S3 bucket that contains your REDCap source zip file (e.g. myredcapsourcefiles) (used if 'Provide in S3' is selected)"
     Type: String
   RedcapS3Key:
-    Description: "The S3 key name - the file name of the REDCap source file (e.g. redcap8.6.0.zip) located inside the bucket provided above"
+    Description: "The S3 key name - the file name of the REDCap source file (e.g. redcap8.6.0.zip) located inside the bucket provided above (used if 'Provide in S3' is selected)"
     Type: String
+  RedcapUname:
+    Description: Your REDCap Community Username (used if 'Download using REDCap API' is selected)
+    Type: String
+  RedcapPword:
+    Description: Your REDCap Community Password (used if 'Download using REDCap API' is selected)
+    Type: String
+    NoEcho: true
+  Redcapver:
+    Description: The version of REDCap you want to install, 'latest' for latest version (used if 'Download using REDCap API' is selected)
+    Type: String
+    Default: latest
 
   VPCcidr:
     Description: (optional to change) CIDR IP Range for your REDCap VPC.
@@ -367,7 +400,18 @@ Conditions:
     - !Condition DeployRoute53
 
 
+
 Resources:
+  certificate:
+    Condition: DeployACM
+    Type: AWS::CertificateManager::Certificate
+    Properties: 
+      DomainName: !Join ['', [!Ref DomainName, '.', !Ref HostedZoneName]]
+      DomainValidationOptions: 
+        - HostedZoneId: !Ref HostedZoneIda
+          DomainName: !Join ['', [!Ref DomainName, '.', !Ref HostedZoneName]]
+      ValidationMethod: DNS
+  
   VPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -384,14 +428,6 @@ Resources:
         a2cidr: !Ref a2cidr
         d1cidr: !Ref d1cidr
         d2cidr: !Ref d2cidr
-  certificate:
-    Condition: DeployACM
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      Parameters:
-        R53HostedZoneId: !Ref 'HostedZoneId'
-        R53DomainName: !Join ['', [!Ref DomainName, '.', !Ref HostedZoneName]]
-      TemplateURL: https://s3.amazonaws.com/redcap-aws-cloudformation/01-rc-certificate.yaml
   redcapelasticbeanstalk:
     DependsOn: [ VPCStack ]
     Type: AWS::CloudFormation::Stack
@@ -411,7 +447,7 @@ Resources:
         MultiAZDatabase:
           !Ref MultiAZDatabase
         SslCertificate:
-          !If [ DeployACM, !GetAtt [ certificate, Outputs.CertificateArn ], '' ]
+          !If [ DeployACM, !Ref certificate, '' ]
         WebAsgMax:
           !Ref WebAsgMax
         WebAsgMin:
@@ -435,10 +471,18 @@ Resources:
           !If [ DeployRoute53, !Ref HostedZoneName, '' ]
         DomainName:
           !If [ DeployRoute53, !Ref DomainName, '' ]
+        S3orAPI:
+          !Ref S3orAPI
         RedcapS3Bucket:
           !Ref RedcapS3Bucket
         RedcapS3Key:
           !Ref RedcapS3Key
+        RedcapUname:
+          !Ref RedcapUname
+        RedcapPword:
+          !Ref RedcapPword
+        Redcapver:
+          !Ref Redcapver
         EC2KeyName:
           !Ref EC2KeyName
         VPCId:
@@ -477,7 +521,7 @@ Resources:
         DnsEndpoint:
           !Join ['', [!Ref EBEndpoint, '.', !Ref 'AWS::Region', '.elasticbeanstalk.com']]
         HostedZoneId:
-          !Ref HostedZoneId
+          !Ref HostedZoneIda
         HostedZoneName:
           !Ref HostedZoneName
         DomainName:

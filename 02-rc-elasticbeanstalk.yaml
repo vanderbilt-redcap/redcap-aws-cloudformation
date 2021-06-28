@@ -38,6 +38,7 @@ Parameters:
       - eu-west-3
       - eu-north-1
       - sa-east-1
+      - us-gov-west-1
     Description: Region where you configured your SES credentials.
   S3AccessKey:
     Type: String
@@ -176,11 +177,27 @@ Parameters:
     AllowedPattern: ^$|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
     Description: '[ Optional, only if using Route53 ] The sub-domain name of the Project REDCap site.  This sub-domain will be prepended your specified Hosted Zone (e.g. redcap in redcap.example.edu).'
     Type: String
+  S3orAPI:
+    Description: "Download REDCap automatically or provide it in S3?"
+    Type: String
+    AllowedValues:
+      - "Provide in S3"
+      - "Download using REDCap API"  
   RedcapS3Bucket:
     Description: "S3 bucket that contains your REDCap binary file"
     Type: String
   RedcapS3Key:
     Description: "S3 Key that points to your Redcap Binary file"
+    Type: String
+  RedcapUname:
+    Description: Your REDCap Community Username (used if 'Download using REDCap API' is selected)
+    Type: String
+  RedcapPword:
+    Description: Your REDCap Community Password (used if 'Download using REDCap API' is selected)
+    Type: String
+    NoEcho: true
+  Redcapver:
+    Description: The version of REDCap you want to install, 'latest' for latest version (used if 'Download using REDCap API' is selected)
     Type: String
   DatabaseMasterPassword:
     Description: Must be letters (upper or lower), numbers, spaces, and these special characters `~#$%^&*()_+,-
@@ -257,6 +274,8 @@ Mappings:
       AMI: ami-0a10b2721688ce9d2
     ap-northeast-3:
       AMI: ami-0d98120a9fb693f07
+    us-gov-west-1:
+      AMI: ami-906cf0f1
 
 
 Conditions:
@@ -272,6 +291,9 @@ Conditions:
   NotDeployACM: !Or
     - !Equals [ false, !Ref UseACMBoolean ]
     - !Equals [ false, !Ref UseRoute53Boolean ]
+  UseAPIDownload: !Equals
+    - !Ref S3orAPI
+    - "Download using REDCap API"
 
 
 Resources:
@@ -891,8 +913,15 @@ Resources:
           /opt/aws/bin/cfn-init --verbose --stack ${AWS::StackName} --resource TempEC2Instance --region ${AWS::Region}
           cd /tmp
           sudo service awslogs start
-          #Get the REDCap source file specified by the user
-          aws s3 cp s3://${RedcapS3Bucket}/${RedcapS3Key} .
+
+          if [ "${S3orAPI}" = "Provide in S3" ]; then
+            #Get the REDCap source file specified by the user
+            aws s3 cp s3://${RedcapS3Bucket}/${RedcapS3Key} .
+          else
+            curl -o redcap.zip -d "username=${RedcapUname}&password=${RedcapPword}&version=${Redcapver}&install=1" -X POST https://redcap.vanderbilt.edu/plugins/redcap_consortium/versions.php
+            export REDCAP_FILE_NAME=redcap.zip
+          fi
+
           unzip $REDCAP_FILE_NAME -d "./redcap"
           mkdir redcap/.ebextensions/
           #Copy all of the configuration files and scripts we want Elastic Beanstalk to run into the source file
@@ -913,7 +942,7 @@ Resources:
           aws s3api put-bucket-encryption --bucket ${S3FileRepositoryBucket} --server-side-encryption-configuration '{ "Rules": [ { "ApplyServerSideEncryptionByDefault": { "SSEAlgorithm": "AES256" } } ] }'
           #Tell Elastic Beanstalk what the latest PHP 7 solution stack is 
           echo ${PHPVersion}
-          export SOLUTION_STACK=`aws elasticbeanstalk list-available-solution-stacks | grep -v "SolutionStackName" | grep "PHP ${PHPVersion}" | grep "Linux 2 " |  head -1 | cut -d \" -f2`
+          export SOLUTION_STACK=`aws elasticbeanstalk list-available-solution-stacks --region ${AWS::Region} | grep -v "SolutionStackName" | grep "PHP ${PHPVersion}" | grep "Linux 2 " |  head -1 | cut -d \" -f2`
           echo $SOLUTION_STACK
           /opt/aws/bin/cfn-signal --stack ${AWS::StackName} --region ${AWS::Region} "${EC2WaitHandle}" -d "$SOLUTION_STACK"
           #Shutdown and terminate this temporary instance 
