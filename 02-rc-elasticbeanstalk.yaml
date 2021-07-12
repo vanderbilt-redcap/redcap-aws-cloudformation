@@ -849,8 +849,7 @@ Resources:
                           awsregion=${awszone::-1}
                           device='/dev/sdh'
                           instanceId=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
-                          createJson=$(aws ec2 create-volume --size 4 --region $awsregion --availability-zone $awszone --volume-type standard --encrypted)
-                          volumeId=$(echo $createJson | sed -n 's/.*"VolumeId": "\(.*\)",/\1/p' | cut -d '"' -f 1)
+                          volumeId=$(aws ec2 create-volume --size 4 --region $awsregion --availability-zone $awszone --volume-type standard --encrypted --query VolumeId --output=text)
                           aws ec2 wait volume-available --region $awsregion --volume-ids $volumeId
                           aws ec2 attach-volume --volume-id $volumeId --instance-id $instanceId --device $device --region $awsregion
                           aws ec2 wait volume-in-use --region $awsregion --volume-ids $volumeId
