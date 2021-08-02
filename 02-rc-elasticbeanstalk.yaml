@@ -845,10 +845,11 @@ Resources:
                           if grep -qs "$mount" /proc/mounts; then
                           echo "encrypted volume already mounted ..."
                           else
-                          awszone=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
+                          TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600") 
+                          awszone=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/availability-zone)
                           awsregion=${awszone::-1}
                           device='/dev/sdh'
-                          instanceId=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+                          instanceId=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
                           createJson=$(aws ec2 create-volume --size 4 --region $awsregion --availability-zone $awszone --volume-type standard --encrypted)
                           volumeId=$(echo $createJson | sed -n 's/.*"VolumeId": "\(.*\)",/\1/p' | cut -d '"' -f 1)
                           aws ec2 wait volume-available --region $awsregion --volume-ids $volumeId
