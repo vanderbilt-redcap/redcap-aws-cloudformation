@@ -326,7 +326,7 @@ Resources:
               StringEquals:
                 'sts:ExternalId': elasticbeanstalk
       ManagedPolicyArns: 
-        - "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
+        - "arn:aws:iam::aws:policy/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
       Policies:
         - PolicyName: root
           PolicyDocument:
@@ -372,7 +372,7 @@ Resources:
               - 'sts:AssumeRole'
       ManagedPolicyArns: 
         - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
-        - "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
+        - "arn:aws:iam::aws:policy/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
       Policies:
         - PolicyName: root
           PolicyDocument:
