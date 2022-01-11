@@ -26,6 +26,7 @@ Parameters:
       - us-east-1
       - us-west-1
       - us-west-2
+      - af-south-1
       - ap-south-1
       - ap-northeast-2
       - ap-southeast-1
@@ -250,6 +251,8 @@ Mappings:
       AMI: ami-0bdb828fd58c52235
     us-west-2:
       AMI: ami-a0cfeed8
+    af-south-1:
+      AMI: ami-063a9ea2ff5685f7f
     ca-central-1:
       AMI: ami-0b18956f
     eu-west-1:
