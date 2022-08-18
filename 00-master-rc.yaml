@@ -324,8 +324,10 @@ Parameters:
       - 7.2
       - 7.3
       - 7.4
-    Default: 7.4
-    Description: The version of PHP to use with REDCap.  PHP 7.4 is recommended.
+      - 8.0
+      - 8.1
+    Default: 8.0
+    Description: The version of PHP to use with REDCap.  PHP 8.0 is recommended.
     Type: String
 
 
