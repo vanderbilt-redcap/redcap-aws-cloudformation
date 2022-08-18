@@ -142,7 +142,9 @@ Parameters:
       - 7.2
       - 7.3
       - 7.4
-    Default: 7.4
+      - 8.0
+      - 8.1
+    Default: 8.1
     Description: The version of PHP to use with REDCap.
     Type: String
   S3FileRepositoryBucket:
@@ -305,14 +307,21 @@ Resources:
     DependsOn: 
       - EC2WaitCondition
       - RDSDBInstance1   
-    Description: Project Redcap PHP servers
     Properties:
-      ApplicationVersions:
-        - Description: Version 1.0
-          SourceBundle:
-            S3Bucket: !Ref EBBucket
-            S3Key: redcap-eb.zip
-          VersionLabel: Initial Version
+      Description: Project Redcap PHP servers
+ 
+ 
+  RCAppNoMultiAZDBVersion:
+    Type: 'AWS::ElasticBeanstalk::ApplicationVersion'
+    Condition: NotDeployMultiAZDB
+    Properties:
+      ApplicationName:
+        Ref: RCAppNoMultiAZDB
+      Description: Initial Version
+      SourceBundle:
+        S3Bucket: !Ref EBBucket
+        S3Key: redcap-eb.zip
+  
   RCAppMultiAZDB:
     Type: 'AWS::ElasticBeanstalk::Application'
     Condition: DeployMultiAZDB
@@ -320,14 +329,20 @@ Resources:
       - EC2WaitCondition
       - RDSDBInstance1
       - RDSDBInstance2
-    Description: Project Redcap PHP servers
     Properties:
-      ApplicationVersions:
-        - Description: Version 1.0
-          SourceBundle:
-            S3Bucket: !Ref EBBucket
-            S3Key: redcap-eb.zip
-          VersionLabel: Initial Version
+      Description: Project Redcap PHP servers
+ 
+  RCAppMultiAZDBVersion:
+    Type: 'AWS::ElasticBeanstalk::ApplicationVersion'
+    Condition: DeployMultiAZDB
+    Properties:
+      ApplicationName:
+        Ref: RCAppMultiAZDB
+      Description: Initial Version
+      SourceBundle:
+        S3Bucket: !Ref EBBucket
+        S3Key: redcap-eb.zip
+
   REDCapEnvironmentACM:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Condition: DeployACM
@@ -336,7 +351,7 @@ Resources:
       ApplicationName: !If [ DeployMultiAZDB, !Ref 'RCAppMultiAZDB', !Ref 'RCAppNoMultiAZDB' ]
       Description: Elastic Beanstalk deployment of Project Redcap
       SolutionStackName: !Select [1, !Split ['"', !Select [0, !Split ['}', !Select [1, !Split [':', !GetAtt 'EC2WaitCondition.Data']]]]]]
-      VersionLabel: Initial Version
+      VersionLabel:  !If [ DeployMultiAZDB, !Ref 'RCAppMultiAZDBVersion', !Ref 'RCAppNoMultiAZDBVersion' ]
       EnvironmentName: !Ref EBEndpoint
       CNAMEPrefix: !Ref EBEndpoint
       Tier:
@@ -463,7 +478,7 @@ Resources:
       ApplicationName: !If [ DeployMultiAZDB, !Ref 'RCAppMultiAZDB', !Ref 'RCAppNoMultiAZDB' ]
       Description: Elastic Beanstalk deployment of Project Redcap
       SolutionStackName: !Select [1, !Split ['"', !Select [0, !Split ['}', !Select [1, !Split [':', !GetAtt 'EC2WaitCondition.Data']]]]]]
-      VersionLabel: Initial Version
+      VersionLabel:  !If [ DeployMultiAZDB, !Ref 'RCAppMultiAZDBVersion', !Ref 'RCAppNoMultiAZDBVersion' ]
       EnvironmentName: !Ref EBEndpoint
       CNAMEPrefix: !Ref EBEndpoint
       Tier:
