@@ -59,6 +59,8 @@ Parameters:
     AllowedValues:
       - db.t2.small
       - db.t2.medium
+      - db.t3.small
+      - db.t3.medium      
       - db.r4.large
       - db.r4.xlarge
       - db.r4.2xlarge
@@ -66,7 +68,7 @@ Parameters:
       - db.r4.8xlarge
       - db.r4.16xlarge
     ConstraintDescription: Must be a valid RDS instance class.
-    Default: db.t2.small
+    Default: db.t3.small
     Description: The Amazon RDS database instance class.
     Type: String
   WebAsgMax:
@@ -89,7 +91,14 @@ Parameters:
       - t2.medium 
       - t2.large 
       - t2.xlarge 
-      - t2.2xlarge 
+      - t2.2xlarge
+      - t3.nano 
+      - t3.micro 
+      - t3.small 
+      - t3.medium 
+      - t3.large 
+      - t3.xlarge 
+      - t3.2xlarge        
       - m3.medium 
       - m3.large 
       - m3.xlarge 
@@ -134,7 +143,7 @@ Parameters:
       - r4.8xlarge 
       - r4.16xlarge 
     ConstraintDescription: Must be a valid Amazon EC2 instance type.
-    Default: t2.micro
+    Default: t3.micro
     Description: The Amazon EC2 instance type for your web instances.
     Type: String
   PHPVersion:
@@ -822,9 +831,9 @@ Resources:
                     sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 32M/" /etc/php.ini
                     sed -i "s/post_max_size = 8M/post_max_size = 32M/" /etc/php.ini
 
-                    if [ ${Protocol} == 'https://' ]; then
-                      echo "session.cookie_secure = on" >> /etc/php.ini
-                    fi
+
+                    echo "session.cookie_secure = on" >> /etc/php.ini
+
 
                     systemctl restart nginx
                     systemctl restart php-fpm
