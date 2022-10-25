@@ -26,11 +26,13 @@ Parameters:
       - us-east-1
       - us-west-1
       - us-west-2
+      - af-south-1
       - ap-south-1
+      - ap-northeast-1
       - ap-northeast-2
+      - ap-northeast-3
       - ap-southeast-1
       - ap-southeast-2
-      - ap-northeast-1
       - ca-central-1
       - eu-central-1
       - eu-west-1
@@ -57,16 +59,18 @@ Parameters:
     Type: String
   DatabaseInstanceType:
     AllowedValues:
-      - db.t2.small
-      - db.t2.medium
-      - db.r4.large
-      - db.r4.xlarge
-      - db.r4.2xlarge
-      - db.r4.4xlarge
-      - db.r4.8xlarge
-      - db.r4.16xlarge
+      - db.t3.small
+      - db.t3.medium
+      - db.t3.large
+      - db.r5.large
+      - db.r5.xlarge
+      - db.r5.2xlarge
+      - db.r5.4xlarge
+      - db.r5.8xlarge
+      - db.r5.16xlarge
+      - db.r5.24xlarge
     ConstraintDescription: Must be a valid RDS instance class.
-    Default: db.t2.small
+    Default: db.t3.small
     Description: The Amazon RDS database instance class.
     Type: String
   WebAsgMax:
@@ -83,58 +87,34 @@ Parameters:
     Type: String
   WebInstanceType:
     AllowedValues:
-      - t2.nano 
-      - t2.micro 
-      - t2.small 
-      - t2.medium 
-      - t2.large 
-      - t2.xlarge 
-      - t2.2xlarge 
-      - m3.medium 
-      - m3.large 
-      - m3.xlarge 
-      - m3.2xlarge 
-      - m4.large 
-      - m4.xlarge 
-      - m4.2xlarge 
-      - m4.4xlarge 
-      - m4.10xlarge 
-      - m4.16xlarge 
+      - t3.nano
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
       - m5.large 
       - m5.xlarge 
       - m5.2xlarge 
       - m5.4xlarge 
       - m5.12xlarge 
       - m5.24xlarge 
-      - c3.large 
-      - c3.xlarge 
-      - c3.2xlarge 
-      - c3.4xlarge 
-      - c3.8xlarge 
-      - c4.large 
-      - c4.xlarge 
-      - c4.2xlarge 
-      - c4.4xlarge 
-      - c4.8xlarge 
       - c5.large 
       - c5.xlarge 
       - c5.2xlarge 
       - c5.4xlarge 
       - c5.9xlarge 
       - c5.18xlarge
-      - r3.large 
-      - r3.xlarge 
-      - r3.2xlarge 
-      - r3.4xlarge 
-      - r3.8xlarge 
-      - r4.large 
-      - r4.xlarge 
-      - r4.2xlarge 
-      - r4.4xlarge 
-      - r4.8xlarge 
-      - r4.16xlarge 
+      - r5.large
+      - r5.xlarge
+      - r5.2xlarge
+      - r5.4xlarge
+      - r5.8xlarge
+      - r5.16xlarge
+      - r5.24xlarge
     ConstraintDescription: Must be a valid Amazon EC2 instance type.
-    Default: t2.micro
+    Default: t3.micro
     Description: The Amazon EC2 instance type for your web instances.
     Type: String
   PHPVersion:
@@ -191,6 +171,29 @@ Parameters:
   RedcapS3Key:
     Description: "S3 Key that points to your Redcap Binary file"
     Type: String
+  RedcapS3BucketRegion:
+    Description: "AWS Region of the S3 bucket that contains your REDCap binary file"
+    Type: String
+    AllowedValues:
+      - us-east-2
+      - us-east-1
+      - us-west-1
+      - us-west-2
+      - af-south-1
+      - ap-south-1
+      - ap-northeast-1
+      - ap-northeast-2
+      - ap-northeast-3
+      - ap-southeast-1
+      - ap-southeast-2
+      - ca-central-1
+      - eu-central-1
+      - eu-west-1
+      - eu-west-2
+      - eu-west-3
+      - eu-north-1
+      - sa-east-1
+      - us-gov-west-1
   RedcapUname:
     Description: Your REDCap Community Username (used if 'Download using REDCap API' is selected)
     Type: String
@@ -239,45 +242,9 @@ Parameters:
   EBBucket:
     Type: String
     Description: 'S3 Bucket used to store the application package for Elastic Beanstalk.'
-
-
-#Mapping to find the Amazon Linux AMI in each region.  This AMI is used for the temporary EC2 server.
-Mappings:
-  RegionMap:
-    us-east-1:
-      AMI: ami-0ff8a91507f77f867
-    us-east-2:
-      AMI: ami-0b59bfac6be064b78
-    us-west-1:
-      AMI: ami-0bdb828fd58c52235
-    us-west-2:
-      AMI: ami-a0cfeed8
-    ca-central-1:
-      AMI: ami-0b18956f
-    eu-west-1:
-      AMI: ami-047bb4163c506cd98
-    eu-west-2:
-      AMI: ami-f976839e
-    eu-west-3:
-      AMI: ami-0ebc281c20e89ba4b
-    eu-central-1:
-      AMI: ami-0233214e13e500f77
-    sa-east-1:
-      AMI: ami-07b14488da8ea02a0
-    ap-south-1:
-      AMI: ami-0912f71e06545ad88
-    ap-southeast-1:
-      AMI: ami-08569b978cc4dfa10
-    ap-southeast-2:
-      AMI: ami-09b42976632b27e9b
-    ap-northeast-1:
-      AMI: ami-06cd52961ce9f0d85
-    ap-northeast-2:
-      AMI: ami-0a10b2721688ce9d2
-    ap-northeast-3:
-      AMI: ami-0d98120a9fb693f07
-    us-gov-west-1:
-      AMI: ami-906cf0f1
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
 
 
 Conditions:
@@ -900,12 +867,9 @@ Resources:
                 group: root
     Properties:
       InstanceInitiatedShutdownBehavior: 'terminate'
-      InstanceType: 't2.medium'
+      InstanceType: 't3.medium'
       KeyName: !Ref 'EC2KeyName'
-      ImageId: !FindInMap
-        - RegionMap
-        - !Ref 'AWS::Region'
-        - AMI
+      ImageId: !Ref LatestAmiId
       IamInstanceProfile: !Ref TempEC2InstanceProfile
       SecurityGroupIds: 
         - !Ref SGApp
@@ -920,18 +884,18 @@ Resources:
 
           # Install SSM client
           yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
-          restart amazon-ssm-agent
+          systemctl restart amazon-ssm-agent
 
           aws configure set metadata_service_timeout 10
           aws configure set metadata_service_num_attempts 5
           #Use cfn-init to grab and apply the files specified in the above UserData
           /opt/aws/bin/cfn-init --verbose --stack ${AWS::StackName} --resource TempEC2Instance --region ${AWS::Region}
           cd /tmp
-          sudo service awslogs start
+          sudo systemctl start awslogsd
 
           if [ "${S3orAPI}" = "Provide in S3" ]; then
             #Get the REDCap source file specified by the user
-            aws s3 cp s3://${RedcapS3Bucket}/${RedcapS3Key} .
+            aws s3 cp s3://${RedcapS3Bucket}/${RedcapS3Key} . --region ${RedcapS3BucketRegion}
           else
             curl -o redcap.zip -d "username=${RedcapUname}&password=${RedcapPword}&version=${Redcapver}&install=1" -X POST https://redcap.vanderbilt.edu/plugins/redcap_consortium/versions.php
             export REDCAP_FILE_NAME=redcap.zip
