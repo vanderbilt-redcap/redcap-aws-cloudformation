@@ -641,7 +641,7 @@ Resources:
                     
                     [REDCap-build-log]
                     file = /var/log/cloud-init-output.log
-                    log_group_name = redcap-temporary-ec2-instnace-log
+                    log_group_name = redcap-temporary-ec2-instance-log
                     log_stream_name = ${EB}-build-log
                   - { EB: !Ref EBEndpoint }
                 mode: 000664
