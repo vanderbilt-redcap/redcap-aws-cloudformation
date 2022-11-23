@@ -707,10 +707,9 @@ Resources:
               /tmp/https.conf:
                 content: |
                   server {
-                      listen       443;
+                      listen       443 ssl;
                       server_name  localhost;
                       
-                      ssl                  on;
                       ssl_certificate      /etc/pki/tls/certs/server.crt;
                       ssl_certificate_key  /etc/pki/tls/certs/server.key;
                       
@@ -738,10 +737,10 @@ Resources:
                     #!/usr/bin/env bash
                     export AWS_DEFAULT_REGION=${AWS::Region}
                     #Insert the correct environment details into the database.php file
-                    sed -i 's!'your_mysql_host_name'!'${RDSEndpoint}'!' /var/app/current/redcap/database.php
-                    sed -i 's!'your_mysql_db_name'!'redcap'!' /var/app/current/redcap/database.php
-                    sed -i 's!'your_mysql_db_username'!'redcap_user'!' /var/app/current/redcap/database.php
-                    sed -i 's!'your_mysql_db_password'!'${DBPassword}'!' /var/app/current/redcap/database.php
+                    sed -i "/\$hostname[ tab]\+/s/=.*/= '${RDSEndpoint}';/" /var/app/current/redcap/database.php
+                    sed -i "/\$db[ tab]\+/s/=.*/= 'redcap';/" /var/app/current/redcap/database.php
+                    sed -i "/\$username[ tab]\+/s/=.*/= 'redcap_user';/" /var/app/current/redcap/database.php
+                    sed -i "/\$password[ tab]\+/s/=.*/= '${DBPassword}';/" /var/app/current/redcap/database.php
                     #If we don't have an established 'salt' string, generate one and store it in AWS SSM
                     if ! aws ssm get-parameter --name redcap-salt; then
                         aws ssm put-parameter --name "redcap-salt" --type "SecureString" --value `head /dev/urandom | tr -dc a-z0-9 | head -c 8 ; echo ''`
@@ -856,8 +855,6 @@ Resources:
                           openssl x509 -req -days 365 -in csr.pem -signkey server.key -out server.crt
                           cp server.crt server.key /etc/pki/tls/certs/
                           rm -f server.crt server.key csr.pem
-                          cp /https.conf /etc/nginx/conf.d/
-                          rm /https.conf
                           systemctl restart nginx
                           else
                           echo "Already have a self-signed private key.  This must be an application redeployment"
