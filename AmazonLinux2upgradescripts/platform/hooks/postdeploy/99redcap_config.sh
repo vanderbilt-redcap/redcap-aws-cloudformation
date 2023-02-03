@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 export AWS_DEFAULT_REGION=${AWS::Region}
 #Insert the correct environment details into the database.php file
-sed -i 's!'your_mysql_host_name'!'${RDSEndpoint}'!' /var/app/current/redcap/database.php
-sed -i 's!'your_mysql_db_name'!'redcap'!' /var/app/current/redcap/database.php
-sed -i 's!'your_mysql_db_username'!'redcap_user'!' /var/app/current/redcap/database.php
-sed -i 's!'your_mysql_db_password'!'${DBPassword}'!' /var/app/current/redcap/database.php
+sed -i "/\$hostname[ tab]\+/s/=.*/= '${RDSEndpoint}';/" /var/app/current/redcap/database.php
+sed -i "/\$db[ tab]\+/s/=.*/= 'redcap';/" /var/app/current/redcap/database.php
+sed -i "/\$username[ tab]\+/s/=.*/= 'redcap_user';/" /var/app/current/redcap/database.php
+sed -i "/\$password[ tab]\+/s/=.*/= '${DBPassword}';/" /var/app/current/redcap/database.php
 #If we don't have an established 'salt' string, generate one and store it in AWS SSM
 if ! aws ssm get-parameter --name redcap-salt; then
     aws ssm put-parameter --name "redcap-salt" --type "SecureString" --value `head /dev/urandom | tr -dc a-z0-9 | head -c 8 ; echo ''`
