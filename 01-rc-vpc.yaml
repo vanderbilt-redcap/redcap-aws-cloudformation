@@ -369,7 +369,7 @@ Resources:
             Action:
               - 'sts:AssumeRole'
       ManagedPolicyArns: 
-        - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
       Policies:
         - PolicyName: root
           PolicyDocument:
@@ -459,6 +459,7 @@ Resources:
                   - "elasticbeanstalk:ListAvailableSolutionStacks"
                   - "elasticbeanstalk:DescribePlatformVersion"
                   - "elasticbeanstalk:UpdateEnvironment"
+                  - "elasticbeanstalk:PutInstanceStatistics"
                   - "cloudformation:GetTemplate"
                   - 'cloudformation:DescribeStackResources'
                   - 'cloudformation:DescribeStackResource'
