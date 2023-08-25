@@ -600,14 +600,14 @@ Resources:
     Type: AWS::RDS::DBClusterParameterGroup
     Properties:
       Description: CloudFormation Sample Aurora Cluster Parameter Group
-      Family: aurora-mysql5.7
+      Family: aurora-mysql8.0.22
       Parameters:
         time_zone: US/Eastern
   RDSDBParameterGroup:
     Type: AWS::RDS::DBParameterGroup
     Properties:
       Description: CloudFormation Sample Aurora Parameter Group
-      Family: aurora-mysql5.7
+      Family: aurora-mysql8.0.22
       Parameters:
         sql_mode: IGNORE_SPACE
   RDSDBSubnets:
