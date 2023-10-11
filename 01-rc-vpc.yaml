@@ -476,6 +476,15 @@ Resources:
                   - "elasticloadbalancing:DescribeLoadBalancers"
                 Effect: Allow
                 Resource: '*'
+# To support Enhanced health authorization in AWS
+              - Sid: ElasticBeanstalkHealthAccess
+                Action:
+                  - "elasticbeanstalk:PutInstanceStatistics"
+                Effect: Allow
+                Resource: 
+                  -  "arn:aws:elasticbeanstalk:*:*:application/*"
+                  -  "arn:aws:elasticbeanstalk:*:*:environment/*"
+##        
       Path: /
 
 
