@@ -20,13 +20,14 @@ if [ ! -f $filename ]; then
         exit 1
 fi
 
-        INSTANCE_ID=$(/opt/aws/bin/ec2-metadata -i | awk '{print $2}')
+        TOKEN=$(curl --request PUT "http://169.254.169.254/latest/api/token" --header "X-aws-ec2-metadata-token-ttl-seconds: 3600")
+        INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/ --header "X-aws-ec2-metadata-token: $TOKEN")
         echo "INSTANCE_ID = $INSTANCE_ID"
-        REGION=$(/opt/aws/bin/ec2-metadata -z | awk '{print substr($2, 0, length($2)-1)}')
+        REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region --header "X-aws-ec2-metadata-token: $TOKEN")
         echo "REGION = $REGION"
         TAG="elasticbeanstalk:environment-name"
         echo "TAG = $TAG"
-        ENVIRONMENT_NAME=$(aws ec2 describe-tags --output text --filters "Name=resource-id,Values=${INSTANCE_ID}" "Name=key,Values=${TAG}" --region "${REGION}" --query "Tags[*].Value")
+        ENVIRONMENT_NAME=$(/opt/elasticbeanstalk/bin/get-config container -k environment_name)
         echo "ENVIRONMENT_NAME = $ENVIRONMENT_NAME"
         APPLICATION_NAME=$(aws elasticbeanstalk describe-environments --region $REGION --environment-names $ENVIRONMENT_NAME --query 'Environments[0].ApplicationName' --output text)
         echo "APPLICATION_NAME = $APPLICATION_NAME"
