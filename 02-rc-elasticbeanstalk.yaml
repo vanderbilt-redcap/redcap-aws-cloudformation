@@ -878,7 +878,7 @@ Resources:
             #Get the REDCap source file specified by the user
             aws s3 cp s3://${RedcapS3Bucket}/${RedcapS3Key} . --region ${RedcapS3BucketRegion}
           else
-            curl -o redcap.zip -d "username=${RedcapUname}&password=${RedcapPword}&version=${Redcapver}&install=1" -X POST https://redcap.vanderbilt.edu/plugins/redcap_consortium/versions.php
+            curl -o redcap.zip -d "username=${RedcapUname}&password=${RedcapPword}&version=${Redcapver}&install=1" -X POST https://redcap.vumc.org/plugins/redcap_consortium/versions.php
             export REDCAP_FILE_NAME=redcap.zip
           fi
 
