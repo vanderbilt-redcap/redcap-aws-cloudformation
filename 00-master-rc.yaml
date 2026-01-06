@@ -304,8 +304,6 @@ Parameters:
   
   PHPVersion:
     AllowedValues:
-      - 7.4
-      - 8.0
       - 8.1
     Default: 8.1
     Description: The version of PHP to use with REDCap.  PHP 8.1 is recommended.
