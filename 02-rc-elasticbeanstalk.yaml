@@ -715,6 +715,16 @@ Resources:
                 mode: "000644"
                 owner: root
                 group: root
+              /tmp/deny-temp.conf:
+                content: |
+                  #Elastic Beanstalk Nginx Deny Temp folder Configuration File
+
+                  location ~* /temp/* {
+                      deny all;
+                  }
+                mode: "000644"
+                owner: root
+                group: root
               /tmp/99redcap_config.sh:
                 content: !Sub 
                   - |
@@ -890,7 +900,9 @@ Resources:
           #Copy all of the configuration files and scripts we want Elastic Beanstalk to run into the source file
           cp 99redcap_config.sh redcap/.platform/hooks/postdeploy
           mkdir -p redcap/.platform/nginx/conf.d/
+          mkdir -p redcap/.platform/nginx/conf.d/elasticbeanstalk/
           cp https.conf redcap/.platform/nginx/conf.d/
+          cp deny-temp.conf redcap/.platform/nginx/conf.d/elasticbeanstalk/
           
           cd redcap
           zip -r redcap-eb.zip .
