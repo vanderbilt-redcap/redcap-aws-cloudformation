@@ -5,16 +5,16 @@ PHP 8.1 and Amazon Linux 2 are nearing the end of their lifespan. Many deploymen
 The risk of running unsupported platforms is that you will no longer receive any security updates and there is potential for additional compatibility issues.
 
 ## How do I upgrade my application?
-I am currently working on a programmatic way of performing the updates. However, due to the demand I decided to do this write up for those that would like explore manual doing the upgrade.
+I am currently working on a programmatic way of performing the updates. However, due to the demand I decided to do this write up (along with scripts) for those that would like explore manually doing the upgrade. The script provided will create a new Beanstalk Environment and the old environment will not be deleted or modified. This will give you the opportunity to verify that everything is working prior to cutting over the DNS.
 
-My goal is to have a automated deployment that will programmatically performs updates, however, this is taking longer than expected.
+My goal is to have a automated deployment that will programmatically perform updates, however, this is taking longer than expected.
 
 ## Are there any tradeoffs with the manual deployment?
 The main tradeoff is that you might need to re-create the Beanstalk environment if\when you decide to go back to the programmatic deploy of the REDCap application. Despite the direction you go, **DO NOT DELETE** the CloudFormation template without modifying the template to retain the database. 
 
 In a scenario where you accidentally delete the Amazon RDS database, a final snapshot is created and you can restore the database from this snapshot. However, this would mean downtime until you restore the database and point the application to the new database (via the database.php).
 
-As an alternative, you can scale down the auto scaling group of the Beanstalk app to save cost while you wait for the automated deployment.
+As an alternative to deleting the old environment, you can scale down the auto scaling group of the Beanstalk app to save cost while you wait for the automated deployment.
 
 ## I understand the risks and I would to continue with the manual deployment
 Below, I have included steps you can follow to upgrade your environment along with a script to facilitate the creation of a clone of your environment on a newer platform\OS. Keep in mind that this clone will connect to the existing database.
