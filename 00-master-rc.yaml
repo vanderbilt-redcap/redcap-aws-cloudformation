@@ -233,7 +233,8 @@ Parameters:
     Type: String
   DatabaseInstanceType:
     AllowedValues:
-      - db.t3.small
+      - db.t4g.medium
+      - db.t4g.large
       - db.t3.medium
       - db.t3.large
       - db.r5.large
@@ -244,7 +245,7 @@ Parameters:
       - db.r5.16xlarge
       - db.r5.24xlarge
     ConstraintDescription: Must be a valid RDS instance class.
-    Default: db.t3.small
+    Default: db.t4g.medium
     Description: The Amazon RDS database instance class (determines processing power and memory capacity of the database).
     Type: String
   DatabaseMasterPassword:
@@ -304,8 +305,10 @@ Parameters:
   
   PHPVersion:
     AllowedValues:
-      - 8.1
-    Default: 8.1
+      - 8.3
+      - 8.4
+      - 8.5
+    Default: 8.4
     Description: The version of PHP to use with REDCap.  PHP 8.1 is recommended.
     Type: String
 
@@ -516,8 +519,6 @@ Resources:
           !GetAtt 'VPCStack.Outputs.EBServiceRole'      
         EBInstanceProfile:
           !GetAtt 'VPCStack.Outputs.EBInstanceProfile'
-        TempEC2InstanceProfile:
-          !GetAtt 'VPCStack.Outputs.TempEC2InstanceProfile'
       TemplateURL: https://s3.amazonaws.com/redcap-aws-cloudformation/02-rc-elasticbeanstalk.yaml
   route53:
     Condition: DeployRoute53

@@ -377,7 +377,10 @@ Resources:
             Statement:
               - Sid: BucketAccess
                 Action:
-                  - 's3:*'
+                  - 's3:GetObject'
+                  - 's3:GetBucketLocation'
+                  - 's3:ListBucket'
+                  - 's3:PutObject'
                 Effect: Allow
                 Resource:
                   - !Join 
@@ -492,58 +495,58 @@ Resources:
 
 
 #IAM Roles for the temporary EC2 server to inject the ebextenstions files in to the REDCap source package.
-  EC2Role:
-    Type: AWS::IAM::Role
-    Properties:
-      ManagedPolicyArns: 
-        - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ec2.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-  EC2RolePolicies:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: root
-      PolicyDocument:
-        Statement:
-          - Effect: Allow
-            Action: 
-              - "s3:*"
-              - "cloudformation:DescribeStackResources"
-              - "cloudformation:DescribeStackResource"
-            Resource: 
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref RedcapS3Bucket ] ]
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref RedcapS3Bucket, '/*' ] ]              
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp' ] ]
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp', '/*' ] ]
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository' ] ]
-              - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository', '/*' ] ]
-          - Effect: Allow
-            Action:
-              - "elasticbeanstalk:ListAvailableSolutionStacks"
-            Resource:
-              - '*'
-          - Effect: Allow
-            Action: 
-              - 'logs:CreateLogGroup'
-              - 'logs:CreateLogStream'
-              - 'logs:PutLogEvents'
-              - 'logs:DescribeLogStreams'
-            Resource: 'arn:aws:logs:*:*:*'
-      Roles:
-        - !Ref 'EC2Role'
-  EC2InstanceProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Path: /
-      Roles:
-        - !Ref 'EC2Role'
+  # EC2Role:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     ManagedPolicyArns: 
+  #       - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+  #     AssumeRolePolicyDocument:
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service:
+  #               - ec2.amazonaws.com
+  #           Action:
+  #             - sts:AssumeRole
+  #     Path: /
+  # EC2RolePolicies:
+  #   Type: AWS::IAM::Policy
+  #   Properties:
+  #     PolicyName: root
+  #     PolicyDocument:
+  #       Statement:
+  #         - Effect: Allow
+  #           Action: 
+  #             - "s3:*"
+  #             - "cloudformation:DescribeStackResources"
+  #             - "cloudformation:DescribeStackResource"
+  #           Resource: 
+  #             - !Join [ "", [ 'arn:aws:s3:::', !Ref RedcapS3Bucket ] ]
+  #             - !Join [ "", [ 'arn:aws:s3:::', !Ref RedcapS3Bucket, '/*' ] ]              
+  #             - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp' ] ]
+  #             - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcapebapp', '/*' ] ]
+  #             - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository' ] ]
+  #             - !Join [ "", [ 'arn:aws:s3:::', !Ref "AWS::AccountId", '-', !Select [ 1, !Split [ '-', !Ref 'subnetd3e13a98'] ], '-redcaprepository', '/*' ] ]
+  #         - Effect: Allow
+  #           Action:
+  #             - "elasticbeanstalk:ListAvailableSolutionStacks"
+  #           Resource:
+  #             - '*'
+  #         - Effect: Allow
+  #           Action: 
+  #             - 'logs:CreateLogGroup'
+  #             - 'logs:CreateLogStream'
+  #             - 'logs:PutLogEvents'
+  #             - 'logs:DescribeLogStreams'
+  #           Resource: 'arn:aws:logs:*:*:*'
+  #     Roles:
+  #       - !Ref 'EC2Role'
+  # EC2InstanceProfile:
+  #   Type: AWS::IAM::InstanceProfile
+  #   Properties:
+  #     Path: /
+  #     Roles:
+  #       - !Ref 'EC2Role'
 
   # '${AWS::AccountId}-${subnetpublica}-redcaprepository'
   #IAM User and Access/Secret Key to be used by REDCap to access S3 as a File Repository
@@ -596,8 +599,8 @@ Outputs:
     Value: !Ref 'ServiceRole'
   EBInstanceProfile:
     Value: !Ref 'InstanceProfile'
-  TempEC2InstanceProfile:
-    Value: !Ref 'EC2InstanceProfile'
+  # TempEC2InstanceProfile:
+  #   Value: !Ref 'EC2InstanceProfile'
   S3AccessKey:
     Value: !Ref REDCapAccessKey
   S3SecretKey:

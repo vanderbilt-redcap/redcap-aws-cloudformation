@@ -67,6 +67,8 @@ IAM_INSTANCE_PROFILE=$(echo "$CONFIG" | jq -r '.[] | select(.Namespace=="aws:aut
 SERVICE_ROLE=$(echo "$CONFIG" | jq -r '.[] | select(.Namespace=="aws:elasticbeanstalk:environment" and .OptionName=="ServiceRole") | .Value')
 INSTANCE_TYPE=$(echo "$CONFIG" | jq -r '.[] | select(.Namespace=="aws:autoscaling:launchconfiguration" and .OptionName=="InstanceType") | .Value')
 KEY_NAME=$(echo "$CONFIG" | jq -r '.[] | select(.Namespace=="aws:autoscaling:launchconfiguration" and .OptionName=="EC2KeyName") | .Value')
+ASG_MIN_SIZE=$(echo "$CONFIG" | jq -r '.[] | select(.Namespace=="aws:autoscaling:asg" and .OptionName=="MinSize") | .Value')
+ASG_MAX_SIZE=$(echo "$CONFIG" | jq -r '.[] | select(.Namespace=="aws:autoscaling:asg" and .OptionName=="MaxSize") | .Value')
 
 echo ""
 echo "=== Captured Configuration ==="
@@ -78,6 +80,8 @@ echo "IAM Instance Profile: $IAM_INSTANCE_PROFILE"
 echo "Service Role: $SERVICE_ROLE"
 echo "Instance Type: $INSTANCE_TYPE"
 echo "Key Name: $KEY_NAME"
+echo "ASG Min Size: $ASG_MIN_SIZE"
+echo "ASG Max Size: $ASG_MAX_SIZE"
 
 # Save full config to file
 echo "$CONFIG" > "${SOURCE_ENV_NAME}-config.json"
@@ -104,7 +108,7 @@ cd extracted
 CONFIG_SCRIPT=$(find . -name "99redcap_config.sh" -type f)
 if [ -n "$CONFIG_SCRIPT" ]; then
     echo "Found: $CONFIG_SCRIPT"
-    sed -i.bak 's/yum install -y php-ldap sendmail-cf/dnf install -y php-ldap sendmail-cf postfix/' "$CONFIG_SCRIPT"
+    sed -i.bak 's/yum install -y php-ldap sendmail-cf/dnf install -y php-ldap sendmail-cf postfix mariadb105/' "$CONFIG_SCRIPT"
     echo "Updated yum to dnf and added postfix package"
     rm -f "${CONFIG_SCRIPT}.bak"
 else
@@ -142,7 +146,10 @@ OPTION_SETTINGS="[
     {\"Namespace\":\"aws:autoscaling:launchconfiguration\",\"OptionName\":\"IamInstanceProfile\",\"Value\":\"$IAM_INSTANCE_PROFILE\"},
     {\"Namespace\":\"aws:elasticbeanstalk:environment\",\"OptionName\":\"ServiceRole\",\"Value\":\"$SERVICE_ROLE\"},
     {\"Namespace\":\"aws:autoscaling:launchconfiguration\",\"OptionName\":\"InstanceType\",\"Value\":\"$INSTANCE_TYPE\"},
-    {\"Namespace\":\"aws:elasticbeanstalk:container:php:phpini\",\"OptionName\":\"document_root\",\"Value\":\"/redcap\"}
+    {\"Namespace\":\"aws:elasticbeanstalk:container:php:phpini\",\"OptionName\":\"document_root\",\"Value\":\"/redcap\"},
+    {\"Namespace\":\"aws:elasticbeanstalk:environment\",\"OptionName\":\"LoadBalancerType\",\"Value\":\"application\"},
+    {\"Namespace\":\"aws:autoscaling:asg\",\"OptionName\":\"MinSize\",\"Value\":\"$ASG_MIN_SIZE\"},
+    {\"Namespace\":\"aws:autoscaling:asg\",\"OptionName\":\"MaxSize\",\"Value\":\"$ASG_MAX_SIZE\"}
 ]"
 
 if [ "$KEY_NAME" != "null" ] && [ -n "$KEY_NAME" ]; then

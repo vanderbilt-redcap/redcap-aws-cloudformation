@@ -25,5 +25,11 @@ Below, I have included steps you can follow to upgrade your environment along wi
 4. On the left hand menu, click on **Application versions** 
 5. Select the zip file under the **Source** column of the currently deployed version
 6. You have the option to eith keep this file locally or upload it to Amazon S3 (script supports both options)
-7. Download the script and use the following example command as a reference: ./upgrade-beanstalk-env.sh <source-env> <new-env> <bundle-path> [php-version]
+7. Download the script and use the following example command as a reference: ./upgrade-beanstalk-env.sh \<source-env\> \<new-env\> \<bundle-path\> [php-version]
 8. Navigate back to the Beanstalk console and wait for the environment to become healthy
+
+## How do I cutover the application?
+Since you will have two environments running simultaneously, the only change required to move the new environment to production is to change over the DNS. The new Beanstalk environment will have a new AWS provided DNS name. The two options:
+
+1. Go to your DNS provider and update the DNS to point to the new environment
+2. Within Beanstalk there is functionality to swap the DNS names of environments (Additional information [here](https://docs.aws.amazon.com/whitepapers/latest/blue-green-deployments/swap-the-environment-of-an-elastic-beanstalk-application.html))
