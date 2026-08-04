@@ -974,6 +974,8 @@ Resources:
                         chown -R root:root "$redcap_dir"
                         find "$redcap_dir" -type d -exec chmod 755 {} +
                         find "$redcap_dir" -type f -exec chmod 644 {} +
+                        #Set execute bit for easy upgrade script
+                        chmod +x "$redcap_dir"/redcap_v*/upgrade-aws-eb.sh
                         #Grant write access only to the folders REDCap must write to,
                         #scoped to the PHP-FPM worker user rather than world-writable.
                         for w in temp modules; do
