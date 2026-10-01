@@ -107,6 +107,76 @@ Your Elastic Beanstalk environment is configured to scale automatically based on
 
 Your Relational Database Environment can be scaled by [selecting a larger instance type](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/AuroraMySQL.Managing.Performance.html#AuroraMySQL.Managing.Performance.InstanceScaling) or increasing the storage capacity of your instances.
 
+### Upgrading REDCap
+
+Elastic Beanstalk replaces instances when your environment scales, is rebuilt, or has a platform update applied. Because of that, a REDCap upgrade needs to be applied to the Elastic Beanstalk **application version** rather than to the filesystem of a running instance. An upgrade written only to a running instance is lost the next time an instance is created.
+
+The `upgrade-aws-eb.sh` script handles this for you. It takes a REDCap release zip, merges in the `.ebextensions` and `.platform` directories from your currently deployed version so your environment customisations are preserved, uploads the result to the Elastic Beanstalk application bucket as a new application version, and deploys that version to your environment.
+
+The script ships inside each REDCap release, so on a running instance you will find it at:
+
+```
+/var/app/current/redcap/redcap_vX.Y.Z/upgrade-aws-eb.sh
+```
+
+#### Before you upgrade
+1. Follow the instructions on the [REDCap website](https://projectredcap.org/) to download the release zip for the version you want to move to.
+2. Read the REDCap upgrade notes for that release, particularly if you are skipping several versions.
+3. Take a manual [RDS snapshot](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_CreateSnapshotCluster.html) so you have a known-good database to return to. Note the currently deployed application version label as well, so you can redeploy it if you need to roll back.
+4. Decide how the instance will read the release zip. Either copy it onto the instance, or upload it to a private S3 bucket and use the `--s3` option.
+5. Connect to one of your REDCap instances using Session Manager, as described in [Access Running REDCap Instances](#access-running-redcap-instances). You only need to run this on a single instance; the new application version is deployed to the whole environment.
+
+#### Options
+
+| Option | Description |
+| --- | --- |
+| `-f`, `--file <path>` | Path to a REDCap release zip that is already present on the instance. |
+| `-s`, `--s3 <uri>` | A REDCap release zip stored in S3, given as `s3://bucket/key`. The script verifies the object is readable before it does any other work, then downloads it. |
+| `-h`, `--help` | Print usage and exit. |
+
+Exactly one of `--file` or `--s3` is required. The script exits with an error if both or neither are given.
+
+#### Examples
+
+Upgrading from a zip already on the instance:
+
+```
+sudo bash /var/app/current/redcap/redcap_v16.1.9/upgrade-aws-eb.sh \
+  --file /home/ec2-user/redcap16.1.9.zip
+```
+
+Upgrading from a zip in a private S3 bucket:
+
+```
+sudo bash /var/app/current/redcap/redcap_v16.1.9/upgrade-aws-eb.sh \
+  --s3 s3://my-private-bucket/redcap/redcap16.1.9.zip
+```
+
+Two notes on the examples above. The script is invoked with `sudo bash` rather than executed directly, because the post-deploy hardening step sets every file under `/var/app/current/redcap` to mode 644, which leaves the script non-executable in place. And to use `--s3`, the instance profile attached to your Elastic Beanstalk instances needs `s3:GetObject` on the source object plus `s3:ListBucket` on its bucket, which the pre-flight readability check relies on.
+
+#### What the script does
+1. Validates the source you gave it, and checks there is enough free disk space to stage the upgrade.
+2. Looks up the environment, application, and currently deployed application version from the instance metadata and the Elastic Beanstalk API.
+3. Downloads the currently deployed bundle and unpacks it, then unpacks your new REDCap release.
+4. Copies `.ebextensions` and `.platform` from the deployed bundle into the new release tree.
+5. Zips the result and uploads it to the Elastic Beanstalk application bucket.
+6. Registers it as a new application version labelled `eb-<your-zip-filename>` and calls `update-environment` to deploy it.
+7. Removes everything it staged.
+
+If unpacking either bundle fails, or the new bundle cannot be built, the script stops before any deployment call is made. That matters because a partially extracted bundle would otherwise be packaged and deployed as though it were complete.
+
+#### Staging directory and disk space
+The script stages its work in `/upgrade-files` on the root volume. It does not use `/tmp`, because on Amazon Linux 2023 `/tmp` is a tmpfs capped at 50% of RAM and is too small on the smaller instance types to hold two unpacked REDCap bundles plus the zip files.
+
+An upgrade needs roughly 600 MB of staging space. The script requires 2 GB free on `/` before it starts and exits with a clear message if that is not available, rather than failing part way through an unpack. If you hit that message, either free space on the root volume or [increase its size](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html#command-options-general-autoscalinglaunchconfiguration). The staging directory is emptied when the script finishes, though the directory itself remains.
+
+#### After the upgrade
+Watch the deployment from the [Elastic Beanstalk console](https://console.aws.amazon.com/elasticbeanstalk) under your environment's **Events** and **Health** tabs. Once the new version is deployed and the environment returns to green, the database table (redcap_config) will need to be updated to reflect the new REDCap version. The simplest way to do this is in your browser navigate to: {REDCAP_URL}/upgrade.php
+
+You will be directed to a page with several options. The simplest path is to click the "Upgrade" button under Option A. After the script runs you will be prompted to run the Configuration Checker. Log in to REDCap as an administrator and the check will automatically run, which will tell you if there are any issues or database changes required to complete the upgrade.
+
+To roll back, [deploy the previous application version](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.deploy-existing-version.html) from the **Application versions** page. Elastic Beanstalk retains your earlier versions, so the bundle you were running before the upgrade is still available. Bear in mind that a rollback of the application files does not undo database changes, which is why the snapshot in the preparation steps above is worth taking. The two options for restoring the database are to either create a new database from the snapshot and update the 99redcap_config file or connect to the DB and update the redcap_config table to reflect the previous REDCap version.
+
 ### Changing your REDCap configuration
 
 In general, the REDCap application is configured through the **Control Center** within the REDCap web interface.  There are, however, certain configuration changes that must be made by modifying files within the REDCap application on the application server file system.  One common example of this is configuring REDCap application authentication with an external LDAP account repository (like Microsoft Active Directory).
